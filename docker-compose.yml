@@ -1,0 +1,113 @@
+services:
+  frontend:
+    build:
+      context: ./frontend/
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    networks:
+      - web-network
+    depends_on:
+      - backend
+    restart: always
+
+  backend:
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:band4bandfr@postgres:5432/prirodarazuma_db
+      - DB_HOST=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=band4bandfr
+      - DB_PORT=5432
+      - DB_NAME=prirodarazuma_db
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+      - CELERY_BACKEND_URL=redis://redis:6379/0
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    networks:
+      - web-network
+    restart: always
+    volumes:
+      - ${DATA_DIR}/${BACKEND_DIR}/logs:/app/logs
+      - ${DATA_DIR}/${BACKEND_DIR}/backups:/backups
+      - ${DATA_DIR}/${BACKEND_DIR}/uploads:/app/uploads  
+
+  postgres:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=prirodarazuma_db
+      - POSTGRES_PASSWORD=band4bandfr
+    networks:
+      - web-network
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  pgadmin:
+    image: dpage/pgadmin4:8.11
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    networks:
+      - web-network
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    volumes: 
+      - ${DATA_DIR}/redis_data:/data
+    command: redis-server --appendonly yes 
+    networks:
+      - web-network
+    restart: always
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - web-network
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    restart: always
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+volumes:
+  postgres_data:
+  rabbitmq_data:
+  redis_data:
+  backups:
+  uploads:
+  logs:
+
+networks:
+  web-network:
+    driver: bridge
