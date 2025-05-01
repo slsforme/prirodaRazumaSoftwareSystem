@@ -1,0 +1,11 @@
+.sidebar {
+  font-family: "Nunito", sans-serif;
+}
+
+.sidebar .nav-link span {
+  transition: color 0.3s ease;
+}
+
+.sidebar .nav-link:hover span {
+  color: gray !important;
+}

@@ -1,0 +1,34 @@
+input {
+  border: 2px solid black !important;
+  transition:
+    border-color 0.6s ease,
+    box-shadow 0.6s ease;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+input:hover {
+  border: 2px solid #d3e29f !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+input:focus {
+  border-color: #d3e29f !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  outline: 0 !important;
+}
+
+button {
+  transition: bow-shadow 0.6s ease;
+}
+
+button:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+button,
+input,
+h1,
+h2,
+h3 {
+  font-family: "Nunito", sans-serif;
+}
