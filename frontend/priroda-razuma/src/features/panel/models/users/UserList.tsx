@@ -279,7 +279,7 @@ const UserList = () => {
                       variant="light"
                       id="dropdown-status"
                       className="custom-dropdown w-100 d-flex justify-content-between align-items-center shadow-sm"
-                    >
+                      >
                       {selectedStatus === "all" && "Все статусы"}
                       {selectedStatus === "active" && "Активные"}
                       {selectedStatus === "inactive" && "Неактивные"}
@@ -323,7 +323,7 @@ const UserList = () => {
                         variant="light"
                         id="dropdown-role-mobile"
                         className="custom-dropdown w-100 d-flex justify-content-between align-items-center shadow-sm"
-                      >
+                        >
                         {selectedRole === "all" 
                           ? "Все роли" 
                           : getRoleName(parseInt(selectedRole))}
@@ -362,7 +362,7 @@ const UserList = () => {
                         variant="light"
                         id="dropdown-role"
                         className="custom-dropdown w-100 d-flex justify-content-between align-items-center shadow-sm"
-                      >
+                        >
                         {selectedRole === "all"
                           ? "Все роли"
                           : getRoleName(parseInt(selectedRole))}
@@ -685,15 +685,40 @@ const UserList = () => {
           animation: fadeInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
         }
         .custom-dropdown {
-          border-radius: 10px;
-          padding: 8px 12px;
-          border: none;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .custom-dropdown-menu .dropdown-item.active {
-          background-color: #7DC459;
-          color: white;
-        }
+            border-radius: 10px;
+            font-weight: 500;
+            padding: 8px 12px;
+            border: none;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+
+          .custom-dropdown-menu {
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: none;
+            padding: 8px;
+          }
+
+          .custom-dropdown-menu .dropdown-item {
+            border-radius: 6px;
+            padding: 8px 12px;
+            margin-bottom: 2px;
+          }
+
+          .custom-dropdown-menu .dropdown-item.active {
+            background-color: #7DC459;
+            color: white;
+          }
+
+          .custom-dropdown-menu .dropdown-item:hover {
+            background-color: #5FB347 !important;
+            color: white !important;
+          }
+
+          .custom-dropdown-menu .dropdown-item:active {
+            background-color: #4A9E3A !important;
+          }
       `}</style>
     </div>
   );

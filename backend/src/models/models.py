@@ -8,12 +8,13 @@ from sqlalchemy import (
     Enum as SQLAlchemyEnum,
     event,
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from typing import Optional, List
 from datetime import date
 from enum import Enum
+import re
 
 from db.db import Base
 
@@ -30,7 +31,7 @@ class User(Base):
     fio: Mapped[str] = mapped_column(String(255), nullable=False)
     login: Mapped[str] = mapped_column(String(50), nullable=False)
     password: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
-    active: Mapped[bool] = mapped_column(Boolean, default=True)
+    active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=True)
     photo_url: Mapped[str] = mapped_column(String(255), nullable=True)
     role_id: Mapped[int] = mapped_column(
@@ -41,6 +42,36 @@ class User(Base):
         "Document", back_populates="author", cascade="all, delete-orphan"
     )
 
+    @validates('fio', 'login', 'email')
+    def validate_string_fields(self, key, value):
+        min_lengths = {
+            'fio': 3,
+            'login': 5,
+            'email': 5
+        }
+
+        patterns = {
+            'fio': r'^[А-Яа-яёЁ\s\'-]{3,255}$',
+            'login': r'^[A-Za-z0-9]{5,50}$',
+            'email': r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+        }
+
+        error_messages = {
+            'fio': 'ФИО должно содержать только латинские буквы, пробелы, апострофы и дефисы (3-255 символов)',
+            'login': 'Логин должен содержать только латинские буквы и цифры (5-50 символов)',
+            'email': 'Некорректный формат email. Пример: user@example.com'
+        }
+
+        if value is not None:
+            if key in min_lengths and len(value) < min_lengths[key]:
+                raise ValueError(error_messages[key])
+
+            if key in patterns:
+                if not re.fullmatch(patterns[key], value):
+                    raise ValueError(error_messages[key])
+
+        return value
+
 
 class Role(Base):
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
@@ -48,6 +79,46 @@ class Role(Base):
     users: Mapped[List["User"]] = relationship(
         "User", backref="role", cascade="all, delete-orphan"
     )
+
+    @validates('name', 'description')
+    def validate_role_fields(self, key, value):
+        validations = {
+            'name': {
+                'min_length': 3,
+                'max_length': 255,
+                'pattern': r'^[А-Яа-яёЁ\s-]{3,255}$',
+                'error': (
+                    "Название роли должно содержать только: латиницу, кириллицу, "
+                    "цифры, пробелы, дефисы и подчеркивания (3-255 символов)"
+                )
+            },
+            'description': {
+                'min_length': 0,
+                'max_length': 1000,
+                'pattern': r'^[\wА-Яа-яёЁ!@#$%^&*()+=\[\]{};:\'"\\|,.<>/?\s-]{0,1000}$',
+                'error': (
+                    "Описание содержит запрещенные символы. Допустимы: "
+                    "буквы, цифры, пробелы и специальные символы (до 1000 символов)"
+                )
+            }
+        }
+
+        if value is None and key == 'description':
+            return value
+
+        if key in validations:
+            rules = validations[key]
+            
+            if 'min_length' in rules and len(value) < rules['min_length']:
+                raise ValueError(rules['error'])
+                
+            if 'max_length' in rules and len(value) > rules['max_length']:
+                raise ValueError(rules['error'])
+                
+            if 'pattern' in rules and not re.fullmatch(rules['pattern'], value):
+                raise ValueError(rules['error'])
+
+        return value
 
 
 class Document(Base):
@@ -97,6 +168,31 @@ class Patient(Base):
     documents: Mapped[List["Document"]] = relationship(
         "Document", back_populates="patient", cascade="all, delete-orphan"
     )
+
+    @validates('fio')
+    def validate_patient_fields(self, key, value):
+        validations = {
+            'fio': {
+                'min_length': 3,
+                'max_length': 255,
+                'pattern': r'^[А-Яа-яёЁ\s-]{3,255}$',
+                'error': 'ФИО должно содержать только кириллицу и пробелы (3-255 символов)'
+            }
+        }
+
+        if key in validations:
+            rules = validations[key]
+            
+            if len(value) < rules['min_length']:
+                raise ValueError(rules['error'])
+                
+            if len(value) > rules['max_length']:
+                raise ValueError(rules['error'])
+                
+            if not re.fullmatch(rules['pattern'], value):
+                raise ValueError(rules['error'])
+
+        return value
 
     async def get_documents_by_directory(
         self, session: AsyncSession, directory_type: SubDirectories

@@ -96,7 +96,7 @@ function AccessDenied() {
           <div className="card border-light mb-4 mx-auto" style={{ maxWidth: "600px" }}>
             <div className="card-body p-3 p-md-4">
               <p className="fs-5 mb-3">
-                Уважаемый {getName()}, у Вас нет доступа к этой странице.
+                {getName()}, у Вас нет доступа к этой странице.
               </p>
               <p className="mb-3">
                 Ваша текущая роль <span className="fw-bold">{roleName || "пользователь"}</span> не имеет 

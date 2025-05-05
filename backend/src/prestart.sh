@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 export PGPASSWORD=$DB_PASSWORD
 

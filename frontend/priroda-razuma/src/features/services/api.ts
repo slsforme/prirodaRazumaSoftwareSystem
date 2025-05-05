@@ -18,58 +18,41 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => {
-    console.log(`Response received from: ${response.config.url}`, response);
-    return response;
-  },
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    console.error(
-      `Error in response from: ${originalRequest.url}`,
-      error.response,
-    );
+
+    if (originalRequest.url === "/auth/refresh") {
+      localStorage.clear();
+      window.location.href = "/login";
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !originalRequest._retry) {
-      console.log("Attempting token refresh...");
-      originalRequest._retry = true;
-
       try {
+        originalRequest._retry = true;
         const refreshToken = localStorage.getItem("refresh_token");
-        if (!refreshToken) {
-          console.error("Refresh token not found in local storage");
-          localStorage.removeItem("access_token");
-          window.location.href = "/login";
-          return Promise.reject(new Error("Refresh token not found"));
-        }
 
-        const response = await api.post(
-          "/auth/refresh",
+        if (!refreshToken) throw new Error("No refresh token");
+
+        const { data } = await api.post("/auth/refresh", 
           new URLSearchParams({ refresh_token: refreshToken }),
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          }
+          { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
         );
 
-        localStorage.setItem("access_token", response.data.access_token);
-        localStorage.setItem("refresh_token", response.data.refresh_token);
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("refresh_token", data.refresh_token);
 
         return api(originalRequest);
       } catch (refreshError) {
-        console.error("Refresh token error:", refreshError);
-        if (axios.isAxiosError(refreshError)) {
-          console.error("Server response:", refreshError.response?.data);
-        }
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
+        localStorage.clear();
         window.location.href = "/login";
         return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export const getUserById = (objId: number) => api.get(`/users/${objId}`);

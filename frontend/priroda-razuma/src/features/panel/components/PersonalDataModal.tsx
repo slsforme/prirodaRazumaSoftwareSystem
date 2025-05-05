@@ -306,7 +306,7 @@ const PersonalDataModal: React.FC<PersonalDataModalProps> = ({
           type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
-          accept="image/jpeg, image/png"
+          accept=".jpg,.jpeg,.png"
           style={{ display: "none" }}
         />
       </Modal>

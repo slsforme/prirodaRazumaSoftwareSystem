@@ -365,7 +365,6 @@ const DocumentList = () => {
                   </Dropdown>
                 </div>
 
-                {!isMobile && (
                   <div className="col-md-4 col-lg-3">
                     <Dropdown>
                       <Dropdown.Toggle
@@ -400,7 +399,6 @@ const DocumentList = () => {
                       </Dropdown.Menu>
                     </Dropdown>
                   </div>
-                )}
               </div>
 
               <div className="table-responsive">
@@ -423,6 +421,7 @@ const DocumentList = () => {
                       </th>
                       {!isMobile && (
                         <>
+                          <th style={{ padding: "16px" }}>Название</th>
                           <th style={{ padding: "16px" }}>Директория</th>
                           <th style={{ padding: "16px" }}>Автор</th>
                         </>
@@ -477,10 +476,18 @@ const DocumentList = () => {
                               borderBottom: "1px solid #dee2e6",
                             }}
                           >
-                            {getPatientName(doc.patient_id)}
+                            {getPatientName(doc.patient_id)} 
                           </td>
                           {!isMobile && (
                             <>
+                            <td
+                                style={{
+                                  padding: "16px",
+                                  borderBottom: "1px solid #dee2e6",
+                                }}
+                              >
+                                {doc.name}
+                              </td>
                               <td
                                 style={{
                                   padding: "16px",

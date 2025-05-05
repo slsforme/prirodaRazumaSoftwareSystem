@@ -90,42 +90,62 @@ const LoginForm: React.FC = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError("");
-
+  
     if (!validateForm()) return;
     setIsLoading(true);
-
+  
     try {
       const { data } = await authService.login({
         username: loginData.login,
         password: loginData.password,
       });
-
+  
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("refresh_token", data.refresh_token);
       localStorage.setItem("user_id", data.user_id);
       localStorage.setItem("login", loginData.login);
-
+  
       try {
         const userResponse = await getUserById(parseInt(data.user_id));
         const roleResponse = await getRoleById(userResponse.data.role_id);
-
+  
+        if (!userResponse.data.active) {
+          throw new Error("ACCOUNT_DEACTIVATED");
+        }
+  
         localStorage.setItem("fio", userResponse.data.fio);
         localStorage.setItem("role", roleResponse.data.name);
         localStorage.setItem("role_id", roleResponse.data.id);
         localStorage.setItem("email", roleResponse.data.email);
+  
+        navigate("/cabinet");
       } catch (error) {
-        console.error("Ошибка при получении пользователя:", error);
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user_id");
+        localStorage.removeItem("login");
+  
+        if (axios.isAxiosError(error)) {
+          // Обработка ответа от бэкенда
+          if (error.response?.data.detail === "Пользователь неактивен или удалён из системы") {
+            setError("Ваша учётная запись деактивирована");
+          } else {
+            setError("Ошибка при загрузке данных пользователя");
+          }
+        } else if (error instanceof Error && error.message === "ACCOUNT_DEACTIVATED") {
+          setError("Ваша учётная запись деактивирована");
+        }
       }
-
-      navigate("/cabinet");
     } catch (err) {
       if (axios.isAxiosError(err)) {
         if (err.response?.status === 401) {
-          setError("Вы неправильно ввели данные");
+          if (err.response?.data.detail === "Пользователь неактивен или удалён из системы") {
+            setError("Ваша учётная запись деактивирована");
+          } else {
+            setError("Вы неправильно ввели данные");
+          }
         } else {
-          setError(
-            err.response?.data?.message || "Произошла ошибка при авторизации"
-          );
+          setError(err.response?.data?.message || "Произошла ошибка при авторизации");
         }
       } else {
         setError("Неизвестная ошибка. Свяжитесь с Администратором");

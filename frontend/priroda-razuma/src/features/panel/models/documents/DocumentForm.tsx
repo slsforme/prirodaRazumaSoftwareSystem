@@ -144,9 +144,10 @@ const DocumentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         if (!isEdit && !value) {
           error = "Файл обязателен";
         } else if (value) {
-          const allowedExtensions = /(\.pdf|\.docx)$/i;
+          const allowedExtensions = /(\.pdf|\.docx|\.jpg|\.jpeg|\.png|\.mp4|\.mov|\.mkv)$/i;
+
           if (!allowedExtensions.exec(value.name)) {
-            error = "Допустимы только файлы .PDF и .DOCX";
+            error = "Допустимые форматы: PDF, DOCX, изображения (JPG, JPEG, PNG) и видео (MP4, MOV, MKV)";
           }
         }
         break;
@@ -395,7 +396,7 @@ const DocumentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
             Перетащите файл сюда
           </h3>
           <p style={{ fontSize: "1rem", opacity: 0.8 }}>
-            Загрузите документ в формате PDF или DOCX
+            Загрузите документ в формате PDF или DOCX, также поддерживаются Фото и Видео
           </p>
         </div>
       )}
@@ -463,7 +464,7 @@ const DocumentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
               ref={fileInputRef}
               style={{ display: "none" }}
               onChange={handleFileChange}
-              accept=".pdf,.docx"
+              accept=".pdf,.docx,.jpg,.jpeg,.png,.mp4,.mov,.mkv"
             />
 
             <div
@@ -582,7 +583,7 @@ const DocumentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                         transition: "all 0.3s ease",
                       }}
                     >
-                      Поддерживаются файлы PDF и DOCX
+                      Поддерживаются файлы PDF, DOCX, а также Фото (JPG, JPEG, PNG) и Видео (MP4, MOV, MKV)
                     </div>
                   </>
                 )}

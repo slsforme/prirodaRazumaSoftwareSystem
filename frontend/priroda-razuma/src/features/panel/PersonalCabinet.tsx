@@ -128,7 +128,7 @@ function PersonalCabinet() {
           borderRadius: "20px",
         }}
       >
-        <div className="content-area flex-grow-1 d-flex flex-column me-0 me-lg-4 mb-4 mb-lg-0">
+        <div className="content-area flex-grow-1 d-flex flex-column me-0 me-lg-4 mb-1 mb-lg-0">
           <div className="header-section d-flex flex-column flex-md-row align-items-center mb-3 mb-md-4">
             <div className="d-flex align-items-center mb-3 mb-md-0">
               <div className="bg-light p-2 rounded-circle d-flex align-items-center justify-content-center">
@@ -411,7 +411,6 @@ function PersonalCabinet() {
           border-radius: 12px;
           background-color: white;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-          margin-bottom: 16px;
         }
 
         .chart-wrapper {

@@ -49,18 +49,31 @@ async def get_current_user(
     return user
 
 def require_role(allowed_roles: set[int] = None, min_role_id: int = None):
-    def role_checker(user: User = Depends(get_current_user)):
-        if allowed_roles is not None and user.role_id not in allowed_roles:
+    async def role_checker(
+        user: User = Depends(get_current_user),
+        user_service: UserService = Depends(get_user_service)
+    ):
+        fresh_user = await user_service.get_object_by_login(user.login)
+        
+        if not fresh_user or not fresh_user.active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Учетная запись деактивирована"
+            )
+
+        if allowed_roles is not None and fresh_user.role_id not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Недостаточно прав для выполнения действия",
             )
-        if min_role_id is not None and user.role_id < min_role_id:
+            
+        if min_role_id is not None and fresh_user.role_id < min_role_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Недостаточно прав для выполнения действия",
             )
-        return user
+            
+        return fresh_user
     return role_checker
     
 @router.post(

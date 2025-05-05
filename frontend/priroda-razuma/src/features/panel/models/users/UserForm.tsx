@@ -550,8 +550,8 @@ const UserForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                 ref={fileInputRef}
                 style={{ display: "none" }}
                 onChange={handleFileChange}
-                accept="image/jpeg,image/png"
-              />
+                accept=".jpg,.jpeg,.png"
+                />
 
               <div
                 ref={dropZoneRef}
@@ -747,7 +747,7 @@ const UserForm = ({ isEdit = false }: { isEdit?: boolean }) => {
                           transition: "all 0.3s ease",
                         }}
                       >
-                        Поддерживаются файлы JPG и PNG
+                        Поддерживаются файлы JPG, JPEG и PNG
                       </div>
                     </>
                   )}

@@ -28,10 +28,16 @@ class Settings(BaseSettings):
     DB_HOST: str
     DB_PORT: int
     DB_NAME: str
+    REDIS_PASSWORD: str
+    REDIS_HOST: str = "redis"
+    REDIS_PORT: int = 6379
 
     model_config = SettingsConfigDict(
         env_file=os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env"),
     )
+    @property
+    def redis_url(self):
+        return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/0"
 
     api_v1_prefix: str = "/api/v1"
     port: ClassVar[int] = 8000
@@ -39,7 +45,6 @@ class Settings(BaseSettings):
     log_level: ClassVar[str] = "info"
     auth_jwt: ClassVar[AuthJWT] = AuthJWT()
     cache_ttl: ClassVar[int] = 3600
-    redis_url: ClassVar[str] = os.getenv("REDIS_URL", "redis://localhost:6379")
 
     def get_db_url(self):
         return (

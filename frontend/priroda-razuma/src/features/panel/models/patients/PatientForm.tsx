@@ -219,7 +219,7 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
             paddingBottom: "0.5rem",
           }}
         >
-          {isEdit ? "Редактирование пациента" : "Создание нового пациента"}
+          {isEdit ? "Редактирование экспозе ребёнка" : "Создание нового экспозе ребёнка"}
         </h2>
 
         {error && <Alert variant="danger">{error}</Alert>}
