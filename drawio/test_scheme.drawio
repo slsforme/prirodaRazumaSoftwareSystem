@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36" version="26.2.14">
   <diagram name="Страница — 1" id="1AXz00d6YKyN7-LuD7J1">
-    <mxGraphModel dx="907" dy="939" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="934" dy="939" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -151,13 +151,11 @@
         <mxCell id="VgJLLlDZcsgj7kXd5-qU-55" value="Проверка возможности изменения фотографии личного кабинета" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Garamond;fontSize=16;" vertex="1" parent="1">
           <mxGeometry x="4346.5" y="951" width="131" height="99" as="geometry" />
         </mxCell>
-        <mxCell id="VgJLLlDZcsgj7kXd5-qU-103" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=16;" edge="1" parent="1" source="VgJLLlDZcsgj7kXd5-qU-56" target="VgJLLlDZcsgj7kXd5-qU-90">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="4098" y="987" />
-              <mxPoint x="4098" y="1094" />
-            </Array>
-          </mxGeometry>
+        <mxCell id="VgJLLlDZcsgj7kXd5-qU-108" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VgJLLlDZcsgj7kXd5-qU-56" target="VgJLLlDZcsgj7kXd5-qU-86">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="VgJLLlDZcsgj7kXd5-qU-109" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VgJLLlDZcsgj7kXd5-qU-56" target="VgJLLlDZcsgj7kXd5-qU-90">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="VgJLLlDZcsgj7kXd5-qU-56" value="Проверка возможности просмотра страницы &quot;Личный кабинет&quot;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontFamily=Garamond;fontSize=16;" vertex="1" parent="1">
           <mxGeometry x="4121" y="951" width="131" height="99" as="geometry" />
@@ -232,7 +230,7 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="VgJLLlDZcsgj7kXd5-qU-84" value="Проверка возможности прикрепления документа при помощи drag&#39;n&#39;drop" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Garamond;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=16;" vertex="1" parent="1">
-          <mxGeometry x="3906" y="859" width="174" height="73" as="geometry" />
+          <mxGeometry x="3905" y="862.5" width="174" height="73" as="geometry" />
         </mxCell>
         <mxCell id="VgJLLlDZcsgj7kXd5-qU-86" value="Проверка возможности просмотра личной статистики" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Garamond;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=16;" vertex="1" parent="1">
           <mxGeometry x="3906" y="951" width="173" height="73" as="geometry" />
