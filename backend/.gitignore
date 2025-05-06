@@ -33,6 +33,7 @@ certs/
 
 uploads/
 backups/
+alembic/
 
 TODO.md
 TOFIX.md
