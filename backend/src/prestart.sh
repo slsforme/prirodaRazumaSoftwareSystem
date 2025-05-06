@@ -2,12 +2,11 @@
 
 export PGPASSWORD=$DB_PASSWORD
 export PGPASSWORD=$DB_PASSWORD
-export PYTHONPATH=$PYTHONPATH:/app  
 
-if [ ! -d "./src/certs" ]; then
+if [ ! -d "./certs" ]; then
     echo "Создание папки certs и генерация JWT ключей..."
-    mkdir -p ./src/certs
-    cd ./src/certs
+    mkdir -p ./certs
+    cd ./certs
     openssl genrsa -out jwt-private.pem 2048
     openssl rsa -in jwt-private.pem -outform PEM -pubout -out jwt-public.pem
     chmod 600 jwt-private.pem  
@@ -16,7 +15,7 @@ else
     echo "Папка certs уже существует, пропуск генерации ключей"
 fi
 
-if [ ! -f "./src/certs/jwt-private.pem" ] || [ ! -f "./src/certs/jwt-public.pem" ]; then
+if [ ! -f "./certs/jwt-private.pem" ] || [ ! -f "./certs/jwt-public.pem" ]; then
     echo "ОШИБКА: Отсутствуют файлы ключей в папке certs!" >&2
     exit 1
 fi
