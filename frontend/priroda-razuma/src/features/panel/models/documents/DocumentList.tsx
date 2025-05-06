@@ -535,7 +535,7 @@ const DocumentList = () => {
                                 onClick={() => handleDownload(doc.id)}
                                 style={{
                                   backgroundColor: "#A3F49F",
-                                  border: "none", // Добавлено недостающее свойство
+                                  border: "none",
                                   borderRadius: "8px",
                                   padding: isMobile ? "4px 8px" : "6px 12px",
                                   fontSize: isMobile ? "0.7rem" : "0.875rem",
