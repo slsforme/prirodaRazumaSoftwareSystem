@@ -10,6 +10,7 @@ RUN apt-get update && \
     gcc \
     python3-dev \
     libpq-dev \
+    openssl \
     postgresql-client && \
     rm -rf /var/lib/apt/lists/*
 

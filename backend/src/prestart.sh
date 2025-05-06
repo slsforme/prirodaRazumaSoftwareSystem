@@ -2,6 +2,23 @@
 
 export PGPASSWORD=$DB_PASSWORD
 
+if [ ! -d "./src/certs" ]; then
+    echo "Создание папки certs и генерация JWT ключей..."
+    mkdir -p ./src/certs
+    cd ./src/certs
+    openssl genrsa -out jwt-private.pem 2048
+    openssl rsa -in jwt-private.pem -outform PEM -pubout -out jwt-public.pem
+    chmod 600 jwt-private.pem  
+    cd ../..
+else
+    echo "Папка certs уже существует, пропуск генерации ключей"
+fi
+
+if [ ! -f "./src/certs/jwt-private.pem" ] || [ ! -f "./src/certs/jwt-public.pem" ]; then
+    echo "ОШИБКА: Отсутствуют файлы ключей в папке certs!" >&2
+    exit 1
+fi
+
 echo "Ожидание PostgreSQL..."
 until pg_isready -h $DB_HOST -p 5432 -U $DB_USER -d $DB_NAME -t 1; do
     sleep 2

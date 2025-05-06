@@ -28,13 +28,13 @@ echo \
 # Обновление репозиториев
 sudo apt-get update -qq
 
-# Установка Docker
+# Установка Docker и docker-compose 
 sudo apt-get install -y -qq \
     docker-ce \
     docker-ce-cli \
     containerd.io \
     docker-buildx-plugin \
-    docker-compose-plugin 
+    docker-compose-plugin \
 
 # Проверка установки
 sudo docker --version
