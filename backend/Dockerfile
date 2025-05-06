@@ -19,8 +19,7 @@ RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 COPY src/ .
 
-# Create the migration directory
-RUN mkdir -p /app/migration
+RUN mkdir -p /app/alembic/versions
 
 EXPOSE 8000
 
