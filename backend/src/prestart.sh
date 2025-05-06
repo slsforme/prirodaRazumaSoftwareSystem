@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 
 export PGPASSWORD=$DB_PASSWORD
+export PGPASSWORD=$DB_PASSWORD
+export PYTHONPATH=$PYTHONPATH:/app  
 
 if [ ! -d "./src/certs" ]; then
     echo "Создание папки certs и генерация JWT ключей..."
@@ -17,6 +19,11 @@ fi
 if [ ! -f "./src/certs/jwt-private.pem" ] || [ ! -f "./src/certs/jwt-public.pem" ]; then
     echo "ОШИБКА: Отсутствуют файлы ключей в папке certs!" >&2
     exit 1
+fi
+
+if [ ! -d "alembic" ]; then
+    echo "Первичная настройка Alembic..."
+    alembic init alembic
 fi
 
 echo "Ожидание PostgreSQL..."
