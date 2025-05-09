@@ -12,10 +12,11 @@ from typing import AsyncGenerator
 
 from auth.auth import router as auth_router, get_current_user
 from routing.documents import router as documents_routing
-from routing.analytics import router as analitics_routing
+from routing.analytics import router as analytics_routing
 from routing.patients import router as patients_routing
 from routing.users import router as user_routing
 from routing.roles import router as role_routing
+from routing.helper import router as helper_routing
 from tasks.tasks import celery, backup_database
 from config import settings, logger
 from init_db import init_db
@@ -80,7 +81,7 @@ async def redoc_html():
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[f"http://{settings.server_ip}:3000", f"http://{settings.server_ip}:8080", f"http://{settings.server_ip}"], 
+    allow_origins=[f"http://{settings.server_ip}:3000", f"http://{settings.server_ip}:8080", f"http://{settings.server_ip}", "http://localhost:8080"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -96,27 +97,11 @@ protected_router.include_router(user_routing)
 protected_router.include_router(role_routing)
 protected_router.include_router(patients_routing)
 protected_router.include_router(documents_routing)
-protected_router.include_router(analitics_routing)
+protected_router.include_router(analytics_routing)
+protected_router.include_router(helper_routing)
 
 app.include_router(protected_router)
 app.include_router(auth_router, prefix=settings.api_v1_prefix)
-
-@app.get("/tasks/{task_id}")
-async def get_task_status(task_id: str):
-    try:
-        task_result = AsyncResult(task_id, app=celery)
-        return {
-            "task_id": task_id,
-            "status": task_result.status,
-            "result": task_result.result,
-            "ready": task_result.ready()
-        }
-    except Exception as e:
-        logger.error(f"Произошла ошибка при получении статуса задачи: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Ошибка при получении статуса задачи",
-        )
 
 if __name__ == "__main__":
     uvicorn.run(
