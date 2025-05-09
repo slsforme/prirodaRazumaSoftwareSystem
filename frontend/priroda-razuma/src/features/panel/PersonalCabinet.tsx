@@ -1,7 +1,7 @@
 import { isAxiosError } from "axios";
-import { ArrowUpRight, Plus, User } from "lucide-react";
+import { ArrowUpRight, Database as DatabaseIcon, Download, Plus, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import Database from "../../assets/photos/database.png";
 import Patient from "../../assets/photos/patient.png";
@@ -18,6 +18,7 @@ function PersonalCabinet() {
   const [showPersonalModal, setShowPersonalModal] = useState(false);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [isBackupLoading, setIsBackupLoading] = useState(false);
 
   const handleOpenModal = () => setShowPasswordModal(true);
   const handleCloseModal = () => setShowPasswordModal(false);
@@ -76,6 +77,43 @@ function PersonalCabinet() {
         console.error("Unexpected error:", error);
         setProfilePhoto(null);
       }
+    }
+  };
+
+  const handleDownloadBackup = async () => {
+    setIsBackupLoading(true);
+    try {
+      const response = await cachedApi.get(`/utils/database/backup`, {
+        responseType: "blob",
+      });
+
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = "database_backup.sql";
+
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=(.*)/);
+        if (filenameMatch && filenameMatch.length > 1) {
+          filename = filenameMatch[1];
+          if (filename.startsWith('"') && filename.endsWith('"')) {
+            filename = filename.slice(1, -1);
+          }
+          filename = decodeURIComponent(filename);
+        }
+      }
+
+      const blob = new Blob([response.data]);
+      const fileUrl = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = fileUrl;
+      link.download = filename;
+      link.click();
+
+      window.URL.revokeObjectURL(fileUrl);
+    } catch (error) {
+      console.error("Backup download failed:", error);
+    } finally {
+      setIsBackupLoading(false);
     }
   };
 
@@ -255,20 +293,62 @@ function PersonalCabinet() {
             </Link>
           </div>
 
-          <Link
-            to="/documents/create"
-            className="card border-light mb-3 card-scale"
-            style={{ textDecoration: "none" }}
-          >
-            <div className="card-body d-flex align-items-center p-2 p-md-3">
-              <span className="fw-medium fs-6 fs-md-5">
-                Добавить новый Документ
-              </span>
-              <button className="btn btn-light ms-auto p-1 p-md-2 shadow-sm">
-                <Plus size={windowWidth < 576 ? 16 : 18} />
-              </button>
+          <div className="row g-2 g-md-3 mb-3">
+            <div className="col-12 col-md-7">
+              <Link
+                to="/documents/create"
+                className="card border-light card-scale h-100"
+                style={{ textDecoration: "none" }}
+              >
+                <div className="card-body d-flex align-items-center p-2 p-md-3">
+                  <span className="fw-medium fs-6 fs-md-5">
+                    Добавить новый Документ
+                  </span>
+                  <button className="btn btn-light ms-auto p-1 p-md-2 shadow-sm">
+                    <Plus size={windowWidth < 576 ? 16 : 18} />
+                  </button>
+                </div>
+              </Link>
             </div>
-          </Link>
+
+            {roleId === "1" && (
+              <div className="col-12 col-md-5">
+                <div
+                  className="card border-light card-scale h-100"
+                  style={{ cursor: "pointer" }}
+                  onClick={handleDownloadBackup}
+                >
+                  <div className="card-body d-flex align-items-center p-2 p-md-3">
+                    <div className="d-flex align-items-center">
+                      <div className="me-2 p-1 rounded-circle d-flex align-items-center justify-content-center" style={{ backgroundColor: "#e8f5e9" }}>
+                        <DatabaseIcon size={windowWidth < 576 ? 16 : 20} color="#7DC459" />
+                      </div>
+                      <span className="fw-medium fs-6 fs-md-5">
+                        Бэкап Базы Данных
+                      </span>
+                    </div>
+                    <button 
+                      className="btn btn-success ms-auto p-1 p-md-2 shadow-sm" 
+                      disabled={isBackupLoading}
+                      style={{ backgroundColor: "#7DC459", border: "none" }}
+                    >
+                      {isBackupLoading ? (
+                        <Spinner 
+                          as="span" 
+                          animation="border" 
+                          size="sm" 
+                          role="status" 
+                          aria-hidden="true" 
+                        />
+                      ) : (
+                        <Download size={windowWidth < 576 ? 16 : 18} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="chart-container flex-grow-1 position-relative">
             <div className="chart-wrapper">
