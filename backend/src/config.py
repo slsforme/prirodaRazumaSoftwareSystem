@@ -75,7 +75,7 @@ class Settings(BaseSettings):
     def redis_url(self):
         return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/0"
 
-    api_v1_prefix: str = "/api/v1"
+    api_v1_prefix: str = "/v1"
     port: ClassVar[int] = 8000
     host: ClassVar[str] = "0.0.0.0"
     log_level: ClassVar[str] = "info"
