@@ -63,33 +63,26 @@ app = FastAPI(
     title="Priroda Razuma API",
     description="Документация для системы детского нейроцентра 'Природа Разума'",
     version="1.0.0",
+    root_path="/api",  
 )
 
 
 @app.get(f"{settings.api_v1_prefix}/docs", include_in_schema=False)
 async def custom_swagger_ui_html(request: Request):
-    root_path = request.scope.get("root_path", "").rstrip("/")
-    openapi_url = f"{root_path}{settings.api_v1_prefix}/openapi.json"
     return get_swagger_ui_html(
-        openapi_url=openapi_url,
+        openapi_url=app.openapi_url,
         title=app.title + " - Swagger UI",
         swagger_favicon_url="https://prirodarazyma.ru/wp-content/uploads/2024/11/logo_simbol-black-1.svg",
-        swagger_ui_parameters={
-            "syntaxHighlight.theme": "obsidian",
-        },
+        swagger_ui_parameters={"syntaxHighlight.theme": "obsidian"},
     )
-
 
 @app.get(f"{settings.api_v1_prefix}/redoc", include_in_schema=False)
 async def redoc_html(request: Request):
-    root_path = request.scope.get("root_path", "").rstrip("/")
-    openapi_url = f"{root_path}{settings.api_v1_prefix}/openapi.json"
     return get_redoc_html(
-        openapi_url=openapi_url,
+        openapi_url=app.openapi_url,
         title=app.title + " - ReDoc",
         redoc_favicon_url="https://prirodarazyma.ru/wp-content/uploads/2024/11/logo_simbol-black-1.svg",
     )
-
 
 
 app.add_middleware(
@@ -99,6 +92,7 @@ app.add_middleware(
         f"http://{settings.server_ip}:8080",
         f"http://{settings.server_ip}",
         "http://localhost:8080",
+        "http://localhost",
     ],
     allow_credentials=True,
     allow_methods=["*"],
