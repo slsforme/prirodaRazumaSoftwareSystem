@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://prirodarazumadev.ru/api/v1"  
+baseURL: "https://prirodarazumadev.ru/api/v1"  
 });
 
 api.interceptors.request.use(
