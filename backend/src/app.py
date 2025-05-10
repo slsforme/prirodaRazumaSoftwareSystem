@@ -24,32 +24,35 @@ from db.db import engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    logger.info("Инициализация приложения")
-    logger.info("Инициализация Redis кэша...")
-    redis = aioredis.from_url(
-        settings.redis_url, encoding="utf8", decode_responses=True
-    )
-    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
-    logger.info("Redis кэш инициализирован")
-
-    logger.info("Инициализация базы данных...")
-    await init_db(engine)
-    logger.info("База данных инициализирована")
-
-    logger.info("Запуск начального бэкапа базы данных...")
     try:
-        task = backup_database.delay()
-        logger.info(f"Задача бэкапа запущена. ID задачи: {task.id}")
+        logger.info("Инициализация приложения")
+        logger.info("Инициализация Redis кэша...")
+        redis = aioredis.from_url(
+            settings.redis_url, encoding="utf8", decode_responses=True
+        )
+        FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+        logger.info("Redis кэш инициализирован")
+
+        logger.info("Инициализация базы данных...")
+        await init_db(engine)
+        logger.info("База данных инициализирована")
+
+        logger.info("Запуск начального бэкапа базы данных...")
+        try:
+            task = backup_database.delay()
+            logger.info(f"Задача бэкапа запущена. ID задачи: {task.id}")
+        except Exception as e:
+            logger.error(f"Ошибка при запуске задачи бэкапа: {e}")
+
+        yield
+
+        logger.info("Завершение работы приложения")
+        await FastAPICache.clear()
+        logger.info("Redis кэш очищен")
+        await engine.dispose()  
+        logger.info("Соединение с базой данных закрыто")
     except Exception as e:
-        logger.error(f"Ошибка при запуске задачи бэкапа: {e}")
-
-    yield
-
-    logger.info("Завершение работы приложения")
-    await FastAPICache.clear()
-    logger.info("Redis кэш очищен")
-    await engine.dispose()  
-    logger.info("Соединение с базой данных закрыто")
+        logger.error(f"Произошла ошибка при инициализации приложения: {e}")
 
 app = FastAPI(
     lifespan=lifespan,

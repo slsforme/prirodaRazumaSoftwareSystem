@@ -73,7 +73,7 @@ def backup_database(self):
         backup_file = os.path.join(backup_dir, f"backup_{timestamp}.sql")
         
         db_host = os.getenv("DB_HOST")
-        db_user = os.getenv("DB_USER")
+        db_user = os.getenv("POSTGRES_USER")
         db_name = os.getenv("DB_NAME")
         
         cmd = [
