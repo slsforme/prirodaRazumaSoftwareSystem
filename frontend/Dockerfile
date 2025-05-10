@@ -12,10 +12,6 @@ RUN npm run build
 
 FROM nginx:1.25-alpine
 
-RUN rm -rf /etc/nginx/conf.d/default.conf
-
-COPY priroda-razuma/nginx/nginx.conf /etc/nginx/conf.d
-
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 RUN chown -R nginx:nginx /var/cache/nginx
