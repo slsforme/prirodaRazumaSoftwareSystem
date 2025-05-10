@@ -4,4 +4,5 @@ node_modules/
 *.bak
 alembic/
 .mypy_cache/
-certs/*
+*.crt
+*.key
