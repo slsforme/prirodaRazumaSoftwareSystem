@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosResponse } from "axios";
 import qs from "qs";
 
 const api: AxiosInstance = axios.create({
-  baseURL: "http://5.129.196.88/api/v1",
+  baseURL: "http://prirodarazumadev.ru/api/v1",
   withCredentials: true,
   headers: {
     "Content-Type": "application/x-www-form-urlencoded",
