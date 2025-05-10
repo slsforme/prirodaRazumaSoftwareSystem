@@ -71,7 +71,7 @@ app = FastAPI(
 @app.get(f"{settings.api_v1_prefix}/docs", include_in_schema=False)
 async def custom_swagger_ui_html(request: Request):
     return get_swagger_ui_html(
-        openapi_url=app.openapi_url,
+        openapi_url=f"{request.scope.get('root_path')}{app.openapi_url}",        
         title=app.title + " - Swagger UI",
         swagger_favicon_url="https://prirodarazyma.ru/wp-content/uploads/2024/11/logo_simbol-black-1.svg",
         swagger_ui_parameters={"syntaxHighlight.theme": "obsidian"},
@@ -80,7 +80,7 @@ async def custom_swagger_ui_html(request: Request):
 @app.get(f"{settings.api_v1_prefix}/redoc", include_in_schema=False)
 async def redoc_html(request: Request):
     return get_redoc_html(
-        openapi_url=app.openapi_url,
+        openapi_url=f"{request.scope.get('root_path')}{app.openapi_url}",        
         title=app.title + " - ReDoc",
         redoc_favicon_url="https://prirodarazyma.ru/wp-content/uploads/2024/11/logo_simbol-black-1.svg",
     )
