@@ -82,6 +82,8 @@ class Settings(BaseSettings):
     auth_jwt: ClassVar[AuthJWT] = AuthJWT()
     cache_ttl: ClassVar[int] = 3600
     server_ip: ClassVar[str] = "5.129.196.88"
+    ssl_server_domain: ClassVar[str] = "https://prirodarazumadev.ru"
+    server_domain: ClassVar[str] = "http://prirodarazumadev.ru"
 
     def get_db_url(self):
         return (

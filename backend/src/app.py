@@ -96,6 +96,8 @@ app.add_middleware(
         f"http://{settings.server_ip}:3000",
         f"http://{settings.server_ip}:8080",
         f"http://{settings.server_ip}",
+        f"http://{settings.ssl_server_domain}",
+        f"http://{settings.server_domain}",
     ],
     allow_credentials=True,
     allow_methods=["*"],
