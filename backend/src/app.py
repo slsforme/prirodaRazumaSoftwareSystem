@@ -64,6 +64,7 @@ app = FastAPI(
     description="Документация для системы детского нейроцентра 'Природа Разума'",
     version="1.0.0",
     root_path="/api/",  
+    openapi_url=f"{settings.api_v1_prefix}/openapi.json"  
 )
 
 
