@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, APIRouter, HTTPException, status
+from fastapi import FastAPI, Depends, APIRouter, HTTPException, status, Request
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi.middleware.cors import CORSMiddleware
@@ -67,9 +67,11 @@ app = FastAPI(
 
 
 @app.get(f"{settings.api_v1_prefix}/docs", include_in_schema=False)
-async def custom_swagger_ui_html():
+async def custom_swagger_ui_html(request: Request):
+    root_path = request.scope.get("root_path", "").rstrip("/")
+    openapi_url = f"{root_path}{settings.api_v1_prefix}/openapi.json"
     return get_swagger_ui_html(
-        openapi_url=f"{settings.api_v1_prefix}/openapi.json",
+        openapi_url=openapi_url,
         title=app.title + " - Swagger UI",
         swagger_favicon_url="https://prirodarazyma.ru/wp-content/uploads/2024/11/logo_simbol-black-1.svg",
         swagger_ui_parameters={
@@ -79,12 +81,15 @@ async def custom_swagger_ui_html():
 
 
 @app.get(f"{settings.api_v1_prefix}/redoc", include_in_schema=False)
-async def redoc_html():
+async def redoc_html(request: Request):
+    root_path = request.scope.get("root_path", "").rstrip("/")
+    openapi_url = f"{root_path}{settings.api_v1_prefix}/openapi.json"
     return get_redoc_html(
-        openapi_url=f"{settings.api_v1_prefix}/openapi.json",
+        openapi_url=openapi_url,
         title=app.title + " - ReDoc",
         redoc_favicon_url="https://prirodarazyma.ru/wp-content/uploads/2024/11/logo_simbol-black-1.svg",
     )
+
 
 
 app.add_middleware(
