@@ -16,5 +16,7 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 
 RUN chown -R nginx:nginx /var/cache/nginx
 
+RUN chmod 400 ./certs/private.key
+
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
