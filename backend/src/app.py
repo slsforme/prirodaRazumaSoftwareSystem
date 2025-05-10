@@ -63,7 +63,7 @@ app = FastAPI(
     title="Priroda Razuma API",
     description="Документация для системы детского нейроцентра 'Природа Разума'",
     version="1.0.0",
-    root_path="/api",  
+    root_path="/api/",  
 )
 
 
