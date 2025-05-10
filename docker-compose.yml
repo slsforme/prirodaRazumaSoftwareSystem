@@ -30,6 +30,8 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
+      - YANDEX_API_TOKEN=${YANDEX_API_TOKEN}
+      - YANDEX_BACKUP_FOLDER=${YANDEX_BACKUP_FOLDER}
     depends_on:
       postgres:
         condition: service_healthy

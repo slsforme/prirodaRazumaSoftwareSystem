@@ -42,24 +42,20 @@ class User(Base):
         "Document", back_populates="author", cascade="all, delete-orphan"
     )
 
-    @validates('fio', 'login', 'email')
+    @validates("fio", "login", "email")
     def validate_string_fields(self, key, value):
-        min_lengths = {
-            'fio': 3,
-            'login': 5,
-            'email': 5
-        }
+        min_lengths = {"fio": 3, "login": 5, "email": 5}
 
         patterns = {
-            'fio': r'^[А-Яа-яёЁ\s\'-]{3,255}$',
-            'login': r'^[A-Za-z0-9]{5,50}$',
-            'email': r'^[^\s@]+@[^\s@]+\.[^\s@]+$'
+            "fio": r"^[А-Яа-яёЁ\s\'-]{3,255}$",
+            "login": r"^[A-Za-z0-9]{5,50}$",
+            "email": r"^[^\s@]+@[^\s@]+\.[^\s@]+$",
         }
 
         error_messages = {
-            'fio': 'ФИО должно содержать только латинские буквы, пробелы, апострофы и дефисы (3-255 символов)',
-            'login': 'Логин должен содержать только латинские буквы и цифры (5-50 символов)',
-            'email': 'Некорректный формат email. Пример: user@example.com'
+            "fio": "ФИО должно содержать только латинские буквы, пробелы, апострофы и дефисы (3-255 символов)",
+            "login": "Логин должен содержать только латинские буквы и цифры (5-50 символов)",
+            "email": "Некорректный формат email. Пример: user@example.com",
         }
 
         if value is not None:
@@ -80,43 +76,43 @@ class Role(Base):
         "User", backref="role", cascade="all, delete-orphan"
     )
 
-    @validates('name', 'description')
+    @validates("name", "description")
     def validate_role_fields(self, key, value):
         validations = {
-            'name': {
-                'min_length': 3,
-                'max_length': 255,
-                'pattern': r'^[А-Яа-яёЁ\s-]{3,255}$',
-                'error': (
+            "name": {
+                "min_length": 3,
+                "max_length": 255,
+                "pattern": r"^[А-Яа-яёЁ\s-]{3,255}$",
+                "error": (
                     "Название роли должно содержать только: латиницу, кириллицу, "
                     "цифры, пробелы, дефисы и подчеркивания (3-255 символов)"
-                )
+                ),
             },
-            'description': {
-                'min_length': 0,
-                'max_length': 1000,
-                'pattern': r'^[\wА-Яа-яёЁ!@#$%^&*()+=\[\]{};:\'"\\|,.<>/?\s-]{0,1000}$',
-                'error': (
+            "description": {
+                "min_length": 0,
+                "max_length": 1000,
+                "pattern": r'^[\wА-Яа-яёЁ!@#$%^&*()+=\[\]{};:\'"\\|,.<>/?\s-]{0,1000}$',
+                "error": (
                     "Описание содержит запрещенные символы. Допустимы: "
                     "буквы, цифры, пробелы и специальные символы (до 1000 символов)"
-                )
-            }
+                ),
+            },
         }
 
-        if value is None and key == 'description':
+        if value is None and key == "description":
             return value
 
         if key in validations:
             rules = validations[key]
-            
-            if 'min_length' in rules and len(value) < rules['min_length']:
-                raise ValueError(rules['error'])
-                
-            if 'max_length' in rules and len(value) > rules['max_length']:
-                raise ValueError(rules['error'])
-                
-            if 'pattern' in rules and not re.fullmatch(rules['pattern'], value):
-                raise ValueError(rules['error'])
+
+            if "min_length" in rules and len(value) < rules["min_length"]:
+                raise ValueError(rules["error"])
+
+            if "max_length" in rules and len(value) > rules["max_length"]:
+                raise ValueError(rules["error"])
+
+            if "pattern" in rules and not re.fullmatch(rules["pattern"], value):
+                raise ValueError(rules["error"])
 
         return value
 
@@ -169,28 +165,28 @@ class Patient(Base):
         "Document", back_populates="patient", cascade="all, delete-orphan"
     )
 
-    @validates('fio')
+    @validates("fio")
     def validate_patient_fields(self, key, value):
         validations = {
-            'fio': {
-                'min_length': 3,
-                'max_length': 255,
-                'pattern': r'^[А-Яа-яёЁ\s-]{3,255}$',
-                'error': 'ФИО должно содержать только кириллицу и пробелы (3-255 символов)'
+            "fio": {
+                "min_length": 3,
+                "max_length": 255,
+                "pattern": r"^[А-Яа-яёЁ\s-]{3,255}$",
+                "error": "ФИО должно содержать только кириллицу и пробелы (3-255 символов)",
             }
         }
 
         if key in validations:
             rules = validations[key]
-            
-            if len(value) < rules['min_length']:
-                raise ValueError(rules['error'])
-                
-            if len(value) > rules['max_length']:
-                raise ValueError(rules['error'])
-                
-            if not re.fullmatch(rules['pattern'], value):
-                raise ValueError(rules['error'])
+
+            if len(value) < rules["min_length"]:
+                raise ValueError(rules["error"])
+
+            if len(value) > rules["max_length"]:
+                raise ValueError(rules["error"])
+
+            if not re.fullmatch(rules["pattern"], value):
+                raise ValueError(rules["error"])
 
         return value
 

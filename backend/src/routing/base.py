@@ -31,6 +31,7 @@ T = TypeVar("T", bound=BaseModel)
 DB = TypeVar("DB", bound=BaseModel)
 U = TypeVar("U", bound=BaseModel)
 
+
 def custom_key_builder(func, namespace: Optional[str] = None, *args, **kwargs):
     namespace = namespace or f"{cache_prefix}"
     prefix = f"{FastAPICache.get_prefix()}:fastapi_cache:{namespace}:"
@@ -51,6 +52,7 @@ def custom_key_builder(func, namespace: Optional[str] = None, *args, **kwargs):
                 cache_key += f":{key}:{str(value)}"
     return cache_key.replace(" ", "_")
 
+
 def create_base_router(
     prefix: str,
     tags: List[str],
@@ -62,7 +64,7 @@ def create_base_router(
     gender: str = "m",
     has_file_field: bool = False,
     file_field_name: str = "data",
-    get_all_roles: set[int] = {1},  
+    get_all_roles: set[int] = {1},
     get_by_id_roles: set[int] = {1},
     create_roles: set[int] = {1},
     update_roles: set[int] = {1},
@@ -101,6 +103,7 @@ def create_base_router(
             )
 
     if has_file_field:
+
         @router.post(
             "",
             response_model=read_schema,
@@ -152,7 +155,9 @@ def create_base_router(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=f"Ошибка при создании {forms['родительный']}",
                 )
+
     else:
+
         @router.post(
             "",
             response_model=read_schema,
@@ -238,6 +243,7 @@ def create_base_router(
             )
 
     if has_file_field:
+
         @router.put(
             "/{obj_id}",
             response_model=read_schema,
@@ -299,7 +305,9 @@ def create_base_router(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=f"Ошибка при обновлении {forms['родительный']}",
                 )
+
     else:
+
         @router.put(
             "/{obj_id}",
             response_model=read_schema,
@@ -377,6 +385,7 @@ def create_base_router(
             )
 
     if has_file_field:
+
         @router.get(
             "/{obj_id}/download",
             responses={

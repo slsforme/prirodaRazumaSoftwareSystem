@@ -20,6 +20,7 @@ from .schema import *
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
+
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
     user_service: UserService = Depends(get_user_service),
@@ -48,17 +49,18 @@ async def get_current_user(
         )
     return user
 
+
 def require_role(allowed_roles: set[int] = None, min_role_id: int = None):
     async def role_checker(
         user: User = Depends(get_current_user),
-        user_service: UserService = Depends(get_user_service)
+        user_service: UserService = Depends(get_user_service),
     ):
         fresh_user = await user_service.get_object_by_login(user.login)
-        
+
         if not fresh_user or not fresh_user.active:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Учетная запись деактивирована"
+                detail="Учетная запись деактивирована",
             )
 
         if allowed_roles is not None and fresh_user.role_id not in allowed_roles:
@@ -66,16 +68,18 @@ def require_role(allowed_roles: set[int] = None, min_role_id: int = None):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Недостаточно прав для выполнения действия",
             )
-            
+
         if min_role_id is not None and fresh_user.role_id < min_role_id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Недостаточно прав для выполнения действия",
             )
-            
+
         return fresh_user
+
     return role_checker
-    
+
+
 @router.post(
     "/login",
     response_model=Token,
@@ -114,6 +118,7 @@ async def login(
         "token_type": "Bearer",
         "user_id": user.id,
     }
+
 
 @router.post(
     "/refresh",

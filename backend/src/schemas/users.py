@@ -15,8 +15,10 @@ import re
 from config import logger
 
 LOGIN_REGEX = r"^[a-zA-Z0-9]{5,50}$"
-FIO_REGEX = r'^[А-Яа-яёЁ\s-]{3,255}$'
+FIO_REGEX = r"^[А-Яа-яёЁ\s-]{3,255}$"
 PASSWORD_REGEX = r"^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>/?]+$"
+
+
 class UserBase(BaseModel):
     fio: Annotated[
         str,
@@ -59,10 +61,9 @@ class UserBase(BaseModel):
     @field_validator("login")
     def validate_login(cls, v):
         if not re.fullmatch(LOGIN_REGEX, v):
-            raise ValueError(
-                "Логин должен содержать только латинские буквы и цифры"
-            )
+            raise ValueError("Логин должен содержать только латинские буквы и цифры")
         return v.lower()
+
 
 class UserCreate(UserBase):
     password: Annotated[
@@ -97,6 +98,7 @@ class UserCreate(UserBase):
         pwd_bytes: bytes = v.encode()
         return bcrypt.hashpw(pwd_bytes, salt)
 
+
 class UserUpdate(UserBase):
     fio: Optional[Annotated[str, Field(pattern=FIO_REGEX)]] = None
     login: Optional[Annotated[str, Field(pattern=LOGIN_REGEX)]] = None
@@ -117,6 +119,7 @@ class UserUpdate(UserBase):
         salt = bcrypt.gensalt()
         pwd_bytes: bytes = v.encode()
         return bcrypt.hashpw(pwd_bytes, salt)
+
 
 class UserInDB(UserBase):
     id: int

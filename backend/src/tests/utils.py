@@ -2,6 +2,7 @@ from faker import Faker
 
 fake: Faker = Faker()
 
+
 def generate_valid_login():
     login = fake.user_name()
     while len(login) < 5:

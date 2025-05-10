@@ -28,6 +28,7 @@ router = APIRouter(prefix="/statistics", tags=["statistics"])
 
 _max_amount_of_days: int = 365 * 5
 
+
 async def get_documents_stats(
     days: int, user_id: int = None, session: AsyncSession = Depends(get_async_session)
 ) -> List[Dict[str, Any]]:
@@ -43,7 +44,8 @@ async def get_documents_stats(
 
         query = (
             select(
-                func.date(Document.created_at).label("date"), func.count().label("count")
+                func.date(Document.created_at).label("date"),
+                func.count().label("count"),
             )
             .where(func.date(Document.created_at) >= start_date)
             .group_by(func.date(Document.created_at))
@@ -69,6 +71,7 @@ async def get_documents_stats(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Ошибка при получении статистики о Документах",
         )
+
 
 async def get_patients_stats(days: int, session: AsyncSession) -> List[Dict[str, Any]]:
     try:
@@ -113,6 +116,7 @@ async def get_patients_stats(days: int, session: AsyncSession) -> List[Dict[str,
             detail=f"Ошибка при получении статистики о Пациентах",
         )
 
+
 async def get_users_stats(days: int, session: AsyncSession) -> List[Dict[str, Any]]:
     try:
         if days < 1 or days > _max_amount_of_days:
@@ -154,6 +158,7 @@ async def get_users_stats(days: int, session: AsyncSession) -> List[Dict[str, An
             detail=f"Ошибка при получении статистики о Пользователях",
         )
 
+
 async def get_roles_count(days: int, session: AsyncSession) -> List[Dict[str, Any]]:
     try:
         today = datetime.now().date()
@@ -178,6 +183,7 @@ async def get_roles_count(days: int, session: AsyncSession) -> List[Dict[str, An
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Ошибка при получении статистики по ролям",
         )
+
 
 async def get_documents_by_subdir(
     days: int, session: AsyncSession
@@ -211,11 +217,12 @@ async def get_documents_by_subdir(
             detail="Ошибка при получении статистики по поддиректориям",
         )
 
+
 @router.get(
     "/documents/{days}",
     response_model=List[Dict[str, Any]],
     description="Получение статистики по динамике документов по данному количеству дней",
-    dependencies=[Depends(require_role(allowed_roles={1,2}))],  
+    dependencies=[Depends(require_role(allowed_roles={1, 2}))],
 )
 @cache(expire=settings.cache_ttl, coder=Base64Coder, key_builder=custom_key_builder)
 async def get_stats_by_days(
@@ -223,6 +230,7 @@ async def get_stats_by_days(
     session: AsyncSession = Depends(get_async_session),
 ):
     return await get_documents_stats(days, None, session)
+
 
 @router.get(
     "/documents/{days}/user/{user_id}",
@@ -238,11 +246,12 @@ async def get_user_stats_by_days(
 ):
     return await get_documents_stats(days, user_id, session)
 
+
 @router.get(
     "/patients/dynamics/{days}",
     response_model=List[Dict[str, Any]],
     description="Получение статистики по динамике Пациентов по данному количеству дней",
-    dependencies=[Depends(require_role(allowed_roles={1, 2}))],  
+    dependencies=[Depends(require_role(allowed_roles={1, 2}))],
 )
 @cache(expire=settings.cache_ttl, coder=Base64Coder, key_builder=custom_key_builder)
 async def get_patients_dynamics(
@@ -251,11 +260,12 @@ async def get_patients_dynamics(
 ):
     return await get_patients_stats(days, session)
 
+
 @router.get(
     "/users/dynamics/{days}",
     response_model=List[Dict[str, Any]],
     description="Получение статистики по динамике Пользователей по данному количеству дней",
-    dependencies=[Depends(require_role(allowed_roles={1, 2}))],  
+    dependencies=[Depends(require_role(allowed_roles={1, 2}))],
 )
 @cache(expire=settings.cache_ttl, coder=Base64Coder, key_builder=custom_key_builder)
 async def get_users_dynamics(
@@ -264,11 +274,12 @@ async def get_users_dynamics(
 ):
     return await get_users_stats(days, session)
 
+
 @router.get(
     "/roles/count/{days}",
     response_model=List[Dict[str, Any]],
     description="Получение количества пользователей по ролям за период",
-    dependencies=[Depends(require_role(allowed_roles={1, 2}))],  
+    dependencies=[Depends(require_role(allowed_roles={1, 2}))],
 )
 @cache(expire=settings.cache_ttl, coder=Base64Coder, key_builder=custom_key_builder)
 async def get_roles_stats(
@@ -277,11 +288,12 @@ async def get_roles_stats(
 ):
     return await get_roles_count(days, session)
 
+
 @router.get(
     "/documents/subdirectories/{days}",
     response_model=List[Dict[str, Any]],
     description="Получение количества документов по поддиректориям за период",
-    dependencies=[Depends(require_role(allowed_roles={1, 2}))],  
+    dependencies=[Depends(require_role(allowed_roles={1, 2}))],
 )
 @cache(expire=settings.cache_ttl, coder=Base64Coder, key_builder=custom_key_builder)
 async def get_subdirectories_stats(
@@ -290,9 +302,10 @@ async def get_subdirectories_stats(
 ):
     return await get_documents_by_subdir(days, session)
 
+
 @router.get(
     "/export/csv",
-    dependencies=[Depends(require_role(allowed_roles={1, 2}))],  
+    dependencies=[Depends(require_role(allowed_roles={1, 2}))],
 )
 async def export_csv_report(
     report_type: str,
@@ -369,9 +382,10 @@ async def export_csv_report(
         logger.error(f"Ошибка при экспорте в формат CSV: {str(e)}")
         raise HTTPException(status_code=500, detail="Внутренняя ошибка сервера")
 
+
 @router.get(
     "/export/xlsx",
-    dependencies=[Depends(require_role(allowed_roles={1}))],  
+    dependencies=[Depends(require_role(allowed_roles={1}))],
 )
 async def export_xlsx_report(
     report_type: str,

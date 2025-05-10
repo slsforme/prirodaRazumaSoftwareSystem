@@ -22,6 +22,7 @@ from config import settings, logger
 from init_db import init_db
 from db.db import engine
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     try:
@@ -49,19 +50,21 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.info("Завершение работы приложения")
         await FastAPICache.clear()
         logger.info("Redis кэш очищен")
-        await engine.dispose()  
+        await engine.dispose()
         logger.info("Соединение с базой данных закрыто")
     except Exception as e:
         logger.error(f"Произошла ошибка при инициализации приложения: {e}")
 
+
 app = FastAPI(
     lifespan=lifespan,
-    docs_url=None,  
-    redoc_url=None,  
+    docs_url=None,
+    redoc_url=None,
     title="Priroda Razuma API",
     description="Документация для системы детского нейроцентра 'Природа Разума'",
     version="1.0.0",
 )
+
 
 @app.get(f"{settings.api_v1_prefix}/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
@@ -71,20 +74,27 @@ async def custom_swagger_ui_html():
         swagger_favicon_url="https://prirodarazyma.ru/wp-content/uploads/2024/11/logo_simbol-black-1.svg",
         swagger_ui_parameters={
             "syntaxHighlight.theme": "obsidian",
-        }
+        },
     )
+
 
 @app.get(f"{settings.api_v1_prefix}/redoc", include_in_schema=False)
 async def redoc_html():
     return get_redoc_html(
         openapi_url="/openapi.json",
         title=app.title + " - ReDoc",
-        redoc_favicon_url="https://prirodarazyma.ru/wp-content/uploads/2024/11/logo_simbol-black-1.svg"
+        redoc_favicon_url="https://prirodarazyma.ru/wp-content/uploads/2024/11/logo_simbol-black-1.svg",
     )
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[f"http://{settings.server_ip}:3000", f"http://{settings.server_ip}:8080", f"http://{settings.server_ip}", "http://localhost:8080"], 
+    allow_origins=[
+        f"http://{settings.server_ip}:3000",
+        f"http://{settings.server_ip}:8080",
+        f"http://{settings.server_ip}",
+        "http://localhost:8080",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -112,5 +122,5 @@ if __name__ == "__main__":
         host=settings.host,
         port=settings.port,
         reload=True,
-        log_level=settings.log_level
+        log_level=settings.log_level,
     )

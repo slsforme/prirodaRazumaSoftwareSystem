@@ -7,15 +7,13 @@ from models.models import User, Role
 from auth.utils import hash_password
 from config import logger
 
+
 async def init_db(engine: AsyncEngine):
     try:
         async_session = async_sessionmaker(engine, expire_on_commit=False)
 
         async with async_session() as session:
-            roles = [
-                {"name": "Администратор"},
-                {"name": "Педагог"}
-            ]
+            roles = [{"name": "Администратор"}, {"name": "Педагог"}]
 
             for role_data in roles:
                 result = await session.execute(
@@ -27,15 +25,13 @@ async def init_db(engine: AsyncEngine):
 
             await session.commit()
 
-            admin_role = await session.execute(
-                select(Role).where(Role.id == 1)
-            )
+            admin_role = await session.execute(select(Role).where(Role.id == 1))
 
             admin_role = admin_role.scalar_one()
 
             admin_login = "admin123"
             admin_password = "admin123"
-            
+
             admin_exists = await session.execute(
                 select(User).where(User.role_id == admin_role.id)
             )
@@ -43,7 +39,7 @@ async def init_db(engine: AsyncEngine):
             if admin_exists.scalar_one_or_none():
                 logger.info("Администратор уже существует")
                 return
-            
+
             role_result = await session.execute(
                 select(Role).where(Role.name == "Администратор")
             )
@@ -56,7 +52,7 @@ async def init_db(engine: AsyncEngine):
                 password=hashed_password,
                 fio="Фамилия Имя Отчество",
                 role_id=admin_role.id,
-                active=True
+                active=True,
             )
 
             session.add(admin)

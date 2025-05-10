@@ -18,16 +18,17 @@ router = create_base_router(
     update_schema=UserUpdate,
     object_name="пользователь",
     gender="m",
-    get_all_roles={1, 2, 3},  
-    get_by_id_roles={1, 2, 3}, 
+    get_all_roles={1, 2, 3},
+    get_by_id_roles={1, 2, 3},
     create_roles={1},
-    update_roles={1, 2, 3},  
-    delete_roles={1},  
+    update_roles={1, 2, 3},
+    delete_roles={1},
 )
 
 PHOTO_STORAGE = Path("uploads/users/photos")
 ALLOWED_MIME_TYPES = ["image/jpeg", "image/png"]
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+
 
 @router.post(
     "/{user_id}/photo",
@@ -38,7 +39,7 @@ ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
         415: {"description": "Неподдерживаемый формат файла"},
         500: {"description": "Ошибка загрузки файла"},
     },
-    dependencies=[Depends(require_role(allowed_roles={1, 2, 3}))],  
+    dependencies=[Depends(require_role(allowed_roles={1, 2, 3}))],
 )
 async def upload_user_photo(
     user_id: int, photo: UploadFile = File(...), service=Depends(get_user_service)
@@ -87,6 +88,7 @@ async def upload_user_photo(
             detail="Ошибка при загрузке файла",
         )
 
+
 @router.get(
     "/{user_id}/photo",
     responses={
@@ -97,7 +99,7 @@ async def upload_user_photo(
         404: {"description": "Фото не найдено"},
     },
     description="Получение фотографии пользователя по ID",
-    dependencies=[Depends(require_role(allowed_roles={1, 2, 3}))],  
+    dependencies=[Depends(require_role(allowed_roles={1, 2, 3}))],
 )
 async def get_user_photo(user_id: int, service=Depends(get_user_service)):
     user = await service.get_object_by_id(user_id)
@@ -127,6 +129,7 @@ async def get_user_photo(user_id: int, service=Depends(get_user_service)):
             detail="Ошибка при получении файла",
         )
 
+
 @router.delete(
     "/{user_id}/photo",
     response_model=UserInDB,
@@ -135,7 +138,7 @@ async def get_user_photo(user_id: int, service=Depends(get_user_service)):
         404: {"description": "Пользователь не найден"},
         500: {"description": "Ошибка удаления файла"},
     },
-    dependencies=[Depends(require_role(allowed_roles={1, 2, 3}))],  
+    dependencies=[Depends(require_role(allowed_roles={1, 2, 3}))],
 )
 async def delete_user_photo(user_id: int, service=Depends(get_user_service)):
     user = await service.get_object_by_id(user_id)
