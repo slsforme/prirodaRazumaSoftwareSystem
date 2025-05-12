@@ -17,6 +17,7 @@ function Analytics() {
   const [loading, setLoading] = useState(true);
   const [showChart, setShowChart] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [exportLoading, setExportLoading] = useState(false);
   const chartWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -56,6 +57,7 @@ function Analytics() {
 
   const handleExport = async (format: 'csv' | 'xlsx') => {
     try {
+      setExportLoading(true);
       const reportType = getReportType();
       const daysMap: { [key: string]: number } = {
         'week': 7,
@@ -94,6 +96,8 @@ function Analytics() {
     } catch (error) {
       console.error('Export failed:', error);
       alert('Ошибка экспорта! Проверьте консоль для деталей.');
+    } finally {
+      setExportLoading(false);
     }
   };
 
@@ -264,13 +268,30 @@ function Analytics() {
                 id="dropdown-export"
                 style={{ backgroundColor: "#7DC459", border: "none" }}
                 className="d-flex align-items-center shadow-sm"
+                disabled={exportLoading}
               >
-                <Download size={18} />
-                <span className="ms-1 d-none d-md-inline">Экспорт</span>
+                {exportLoading ? (
+                  <>
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                      className="me-1"
+                    />
+                    <span className="ms-1 d-none d-md-inline">Экспорт...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download size={18} />
+                    <span className="ms-1 d-none d-md-inline">Экспорт</span>
+                  </>
+                )}
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item onClick={() => handleExport('csv')}>CSV</Dropdown.Item>
-                <Dropdown.Item onClick={() => handleExport('xlsx')}>Excel</Dropdown.Item>
+                <Dropdown.Item onClick={() => handleExport('csv')} disabled={exportLoading}>CSV</Dropdown.Item>
+                <Dropdown.Item onClick={() => handleExport('xlsx')} disabled={exportLoading}>Excel</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
           </div>
@@ -401,6 +422,12 @@ function Analytics() {
         .dropdown-item:hover {
           background-color: #5FB347 !important;
           color: white !important;
+        }
+        
+        .dropdown-item:disabled {
+          color: #adb5bd;
+          pointer-events: none;
+          background-color: transparent;
         }
         
         .card {

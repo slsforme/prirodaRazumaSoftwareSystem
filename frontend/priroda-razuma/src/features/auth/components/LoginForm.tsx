@@ -165,7 +165,7 @@ const LoginForm: React.FC = () => {
             <div className="d-flex align-items-center mb-3 mb-md-5">
               <div
                 className="rounded-circle border p-2 d-flex align-items-center justify-content-center"
-                style={{ width: "40px", height: "40px" }}
+                style={{ width: "80px", height: "80px" }}
               >
                 <img
                   src={MainLogo}

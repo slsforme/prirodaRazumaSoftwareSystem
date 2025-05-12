@@ -89,15 +89,7 @@ async def redoc_html(request: Request):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost",          
-        "http://localhost:3000",     
-        "http://localhost:8080",     
-        "http://localhost:8000",
-        f"http://{settings.server_ip}:3000",
-        f"http://{settings.server_ip}:8080",
-        f"http://{settings.server_ip}",
         settings.ssl_server_domain,           
-        settings.server_domain,               
     ],
     allow_credentials=True,
     allow_methods=["*"],

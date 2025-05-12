@@ -294,7 +294,8 @@ function PersonalCabinet() {
           </div>
 
           <div className="row g-2 g-md-3 mb-3">
-            <div className="col-12 col-md-7">
+            {/* Модифицированный блок для кнопки добавления документа */}
+            <div className={roleId === "1" ? "col-12 col-md-7" : "col-12"}>
               <Link
                 to="/documents/create"
                 className="card border-light card-scale h-100"
