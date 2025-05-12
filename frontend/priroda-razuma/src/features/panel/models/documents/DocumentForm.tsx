@@ -149,8 +149,8 @@ const DocumentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
             if (!allowedExtensions.exec(value.name)) {
               error = "Допустимые форматы: PDF, DOCX, изображения (JPG, JPEG, PNG) и видео (MP4, MOV, MKV)";
             }
-            else if (value.size > 512 * 1024 * 1024) {
-              error = "Файл слишком большой (макс. 512MB)";
+            else if (value.size > 32 * 1024 * 1024) {
+              error = "Файл слишком большой (макс. 32MB)";
             }
           }
           break;
