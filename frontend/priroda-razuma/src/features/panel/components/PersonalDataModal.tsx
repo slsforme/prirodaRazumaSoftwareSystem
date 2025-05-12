@@ -1,11 +1,9 @@
 import { AxiosError } from "axios";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Button, Modal, Spinner, Toast } from "react-bootstrap";
+import { Button, Modal, Spinner, Toast, ToastContainer } from "react-bootstrap";
 import { Info, Mail, Plus, Shield, User } from "react-feather";
 import api from "../../services/api";
 import { ApiErrorResponse, PersonalDataModalProps } from "./interfaces/charts.types";
-
-
 
 const PersonalDataModal: React.FC<PersonalDataModalProps> = ({
   show,
@@ -15,9 +13,12 @@ const PersonalDataModal: React.FC<PersonalDataModalProps> = ({
   const [avatar, setAvatar] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const userId = localStorage.getItem("user_id");
+
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState<"success" | "danger">("success");
 
   const fio = localStorage.getItem("fio") || "Не указано";
   const role = localStorage.getItem("role") || "Не указана";
@@ -29,10 +30,7 @@ const PersonalDataModal: React.FC<PersonalDataModalProps> = ({
   }
 
   const fetchAvatar = useCallback(async () => {
-    if (!userId) {
-      console.error("User ID not found in localStorage");
-      return;
-    }
+    if (!userId) return;
 
     try {
       const timestamp = new Date().getTime();
@@ -40,51 +38,42 @@ const PersonalDataModal: React.FC<PersonalDataModalProps> = ({
         responseType: "blob",
       });
       
-      if (avatar) {
-        URL.revokeObjectURL(avatar);
-      }
+      if (avatar) URL.revokeObjectURL(avatar);
       
       const url = URL.createObjectURL(response.data);
       setAvatar(url);
     } catch (error) {
       const axiosError = error as AxiosError<ApiErrorResponse>;
-      if (axiosError.response?.status === 404) {
-        setAvatar(null);
-      } else {
-        console.error("Ошибка загрузки аватара:", axiosError);
-        setAvatar(null);
-      }
+      axiosError.response?.status === 404 ? setAvatar(null) : console.error("Ошибка загрузки аватара:", axiosError);
     }
   }, [userId]); 
 
   useEffect(() => {
-    if (show) {
-      fetchAvatar();
-    }
+    show && fetchAvatar();
   }, [show, fetchAvatar]);
 
-  useEffect(() => {
-    return () => {
-      if (avatar) {
-        URL.revokeObjectURL(avatar);
-      }
-    };
-  }, [avatar]);
+  useEffect(() => () => { avatar && URL.revokeObjectURL(avatar) }, [avatar]);
 
   const handleFileUpload = async (file: File) => {
     if (!file || !userId) {
-      setError("Пользователь не найден");
+      setToastMessage("Пользователь не найден");
+      setToastVariant("danger");
+      setShowToast(true);
       return;
     }
 
     const validTypes = ["image/jpeg", "image/png"];
     if (!validTypes.includes(file.type)) {
-      setError("Поддерживаются только JPG/PNG файлы");
+      setToastMessage("Поддерживаются только JPG/PNG файлы");
+      setToastVariant("danger");
+      setShowToast(true);
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError("Файл слишком большой (макс. 5MB)");
+      setToastMessage("Файл слишком большой (макс. 5MB)");
+      setToastVariant("danger");
+      setShowToast(true);
       return;
     }
 
@@ -94,34 +83,29 @@ const PersonalDataModal: React.FC<PersonalDataModalProps> = ({
       formData.append("photo", file);
 
       await api.post(`/users/${userId}/photo`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       const tempUrl = URL.createObjectURL(file);
-      
-      if (avatar) {
-        URL.revokeObjectURL(avatar);
-      }
-      
+      avatar && URL.revokeObjectURL(avatar);
       setAvatar(tempUrl);
-      
       onPhotoUpdate();
       
-      setError("");
+      setToastMessage("Фото успешно обновлено");
+      setToastVariant("success");
+      setShowToast(true);
     } catch (error) {
       console.error("Ошибка загрузки:", error);
-      setError("Ошибка при загрузке фото");
+      setToastMessage("Ошибка при загрузке фото");
+      setToastVariant("danger");
+      setShowToast(true);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFileUpload(e.target.files[0]);
-    }
+    e.target.files?.[0] && handleFileUpload(e.target.files[0]);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -129,20 +113,33 @@ const PersonalDataModal: React.FC<PersonalDataModalProps> = ({
     setIsDragging(true);
   };
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
+  const handleDragLeave = () => setIsDragging(false);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFileUpload(e.dataTransfer.files[0]);
-    }
+    e.dataTransfer.files?.[0] && handleFileUpload(e.dataTransfer.files[0]);
   };
 
   return (
     <>
+      <ToastContainer position="top-center" className="p-3" style={{ zIndex: 1070 }}>
+        <Toast
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          delay={3000}
+          autohide
+          bg={toastVariant}
+        >
+          <Toast.Header closeButton>
+            <strong className="me-auto">
+              {toastVariant === "success" ? "Успех" : "Ошибка"}
+            </strong>
+          </Toast.Header>
+          <Toast.Body className="text-white">{toastMessage}</Toast.Body>
+        </Toast>
+      </ToastContainer>
+
       <Modal
         show={show}
         onHide={onHide}
@@ -163,9 +160,7 @@ const PersonalDataModal: React.FC<PersonalDataModalProps> = ({
           }}
         >
           <Modal.Title className="m-0">
-            <span
-              style={{ color: "#2c3e50", fontWeight: 600, fontSize: "1.5rem" }}
-            >
+            <span style={{ color: "#2c3e50", fontWeight: 600, fontSize: "1.5rem" }}>
               Персональные данные
             </span>
           </Modal.Title>
@@ -208,12 +203,9 @@ const PersonalDataModal: React.FC<PersonalDataModalProps> = ({
                   backgroundColor: "#e0e0e0"
                 }}
               >
-                {!avatar && (
-                  <User size={48} color="#666" />
-                )}
+                {!avatar && <User size={48} color="#666" />}
               </div>
               
-              {/* Полупрозрачный блок с плюсом внизу фотографии */}
               <div
                 className="add-photo-hint w-100 position-absolute bottom-0 d-flex align-items-center justify-content-center"
                 style={{
@@ -310,22 +302,6 @@ const PersonalDataModal: React.FC<PersonalDataModalProps> = ({
           style={{ display: "none" }}
         />
       </Modal>
-
-      {error && (
-        <Toast
-          onClose={() => setError("")}
-          show={!!error}
-          delay={3000}
-          autohide
-          className="position-fixed bottom-0 end-0 m-3"
-          bg="danger"
-        >
-          <Toast.Header closeButton>
-            <strong className="me-auto">Ошибка</strong>
-          </Toast.Header>
-          <Toast.Body className="text-white">{error}</Toast.Body>
-        </Toast>
-      )}
 
       <style>
         {`
