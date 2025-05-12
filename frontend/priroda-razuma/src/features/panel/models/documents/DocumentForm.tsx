@@ -140,17 +140,20 @@ const DocumentForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         else if (value.length > 255) error = "Максимальная длина 255 символов";
         break;
 
-      case "file":
-        if (!isEdit && !value) {
-          error = "Файл обязателен";
-        } else if (value) {
-          const allowedExtensions = /(\.pdf|\.docx|\.jpg|\.jpeg|\.png|\.mp4|\.mov|\.mkv)$/i;
-
-          if (!allowedExtensions.exec(value.name)) {
-            error = "Допустимые форматы: PDF, DOCX, изображения (JPG, JPEG, PNG) и видео (MP4, MOV, MKV)";
+        case "file":
+          if (!isEdit && !value) {
+            error = "Файл обязателен";
+          } else if (value) {
+            const allowedExtensions = /(\.pdf|\.docx|\.jpg|\.jpeg|\.png|\.mp4|\.mov|\.mkv)$/i;
+        
+            if (!allowedExtensions.exec(value.name)) {
+              error = "Допустимые форматы: PDF, DOCX, изображения (JPG, JPEG, PNG) и видео (MP4, MOV, MKV)";
+            }
+            else if (value.size > 512 * 1024 * 1024) {
+              error = "Файл слишком большой (макс. 512MB)";
+            }
           }
-        }
-        break;
+          break;
 
       case "patient_id":
         if (!value) error = "Выберите пациента";
