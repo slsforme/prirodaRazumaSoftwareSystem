@@ -27,6 +27,7 @@ const DocumentList = () => {
   const [pageError, setPageError] = useState("");
   const [loading, setLoading] = useState(true);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [downloadingDocId, setDownloadingDocId] = useState<number | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const isInitialMount = useRef(true);
@@ -44,7 +45,6 @@ const DocumentList = () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
-
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -109,7 +109,6 @@ const DocumentList = () => {
     }
   }, [currentPage, totalPages]);
 
-
   const handleDelete = async (docId: number) => {
     try {
       await api.delete(`/documents/${docId}`);
@@ -124,6 +123,7 @@ const DocumentList = () => {
 
   const handleDownload = async (docId: number) => {
     try {
+      setDownloadingDocId(docId);
       const response = await api.get(`/documents/${docId}/download`, {
         responseType: "blob",
       });
@@ -153,6 +153,8 @@ const DocumentList = () => {
       window.URL.revokeObjectURL(fileUrl);
     } catch (error) {
       console.error("Download failed:", error);
+    } finally {
+      setDownloadingDocId(null);
     }
   };
 
@@ -180,10 +182,6 @@ const DocumentList = () => {
   };
 
   const toggleSidebar = () => {
-    // if (e) {
-    //   e.preventDefault();
-    //   e.stopPropagation();
-    // }
     setShowSidebar(prev => !prev);
     setSidebarCollapsed(false);
   };
@@ -192,7 +190,6 @@ const DocumentList = () => {
   const showNoResults = !loading && filteredDocsLength === 0 && allDocuments.length > 0;
   const isMobile = windowWidth < 768;
   
-
   return (
     <div className="d-flex position-relative" style={{ minHeight: "100vh", maxWidth: "100vw", overflowX: "hidden" }}>
       {isMobile && (
@@ -224,29 +221,29 @@ const DocumentList = () => {
         </button>
       )}
 
-{(showSidebar || !isMobile) && (
-  <div 
-    className="sidebar-container"
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      height: "100%",
-      zIndex: 1040,
-      transition: "transform 0.3s ease-in-out, width 0.3s ease-in-out",
-      boxShadow: "5px 0 25px rgba(0,0,0,0.15)",
-      backgroundColor: "white",
-      transform: showSidebar ? "translateX(0)" : "translateX(-100%)" 
-    }}
-  >
-    <Sidebar 
-      show={showSidebar || !isMobile} 
-      onToggle={toggleSidebar} 
-      collapsed={sidebarCollapsed} 
-      setCollapsed={setSidebarCollapsed} 
-    />
-  </div>
-)}
+      {(showSidebar || !isMobile) && (
+        <div 
+          className="sidebar-container"
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            height: "100%",
+            zIndex: 1040,
+            transition: "transform 0.3s ease-in-out, width 0.3s ease-in-out",
+            boxShadow: "5px 0 25px rgba(0,0,0,0.15)",
+            backgroundColor: "white",
+            transform: showSidebar ? "translateX(0)" : "translateX(-100%)" 
+          }}
+        >
+          <Sidebar 
+            show={showSidebar || !isMobile} 
+            onToggle={toggleSidebar} 
+            collapsed={sidebarCollapsed} 
+            setCollapsed={setSidebarCollapsed} 
+          />
+        </div>
+      )}
 
       <div
         className="flex-grow-1 p-3 p-md-4"
@@ -365,40 +362,40 @@ const DocumentList = () => {
                   </Dropdown>
                 </div>
 
-                  <div className="col-md-4 col-lg-3">
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        variant="light"
-                        id="dropdown-directory"
-                        className="custom-dropdown w-100 d-flex justify-content-between align-items-center shadow-sm"
+                <div className="col-md-4 col-lg-3">
+                  <Dropdown>
+                    <Dropdown.Toggle
+                      variant="light"
+                      id="dropdown-directory"
+                      className="custom-dropdown w-100 d-flex justify-content-between align-items-center shadow-sm"
+                    >
+                      {selectedDirectory === "all" ? "Все директории" : selectedDirectory}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu className="custom-dropdown-menu w-100">
+                      <Dropdown.Item
+                        active={selectedDirectory === "all"}
+                        onClick={() => {
+                          setSelectedDirectory("all");
+                          setCurrentPage(1);
+                        }}
                       >
-                        {selectedDirectory === "all" ? "Все директории" : selectedDirectory}
-                      </Dropdown.Toggle>
-                      <Dropdown.Menu className="custom-dropdown-menu w-100">
+                        Все директории
+                      </Dropdown.Item>
+                      {Object.values(SubDirectories).map((dir) => (
                         <Dropdown.Item
-                          active={selectedDirectory === "all"}
+                          key={dir}
+                          active={selectedDirectory === dir}
                           onClick={() => {
-                            setSelectedDirectory("all");
+                            setSelectedDirectory(dir);
                             setCurrentPage(1);
                           }}
                         >
-                          Все директории
+                          {dir}
                         </Dropdown.Item>
-                        {Object.values(SubDirectories).map((dir) => (
-                          <Dropdown.Item
-                            key={dir}
-                            active={selectedDirectory === dir}
-                            onClick={() => {
-                              setSelectedDirectory(dir);
-                              setCurrentPage(1);
-                            }}
-                          >
-                            {dir}
-                          </Dropdown.Item>
-                        ))}
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </div>
+                      ))}
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </div>
               </div>
 
               <div className="table-responsive">
@@ -533,6 +530,7 @@ const DocumentList = () => {
                               <Button
                                 size="sm"
                                 onClick={() => handleDownload(doc.id)}
+                                disabled={downloadingDocId === doc.id}
                                 style={{
                                   backgroundColor: "#A3F49F",
                                   border: "none",
@@ -542,7 +540,19 @@ const DocumentList = () => {
                                   marginBottom: isMobile ? "4px" : "0",
                                 }}
                               >
-                                {isMobile ? "Скач." : "Скачать"}
+                                {downloadingDocId === doc.id ? (
+                                  <>
+                                    <Spinner
+                                      as="span"
+                                      animation="border"
+                                      size="sm"
+                                      role="status"
+                                      aria-hidden="true"
+                                      className="me-2"
+                                    />
+                                    {!isMobile && "Скачивание..."}
+                                  </>
+                                ) : isMobile ? "Скач." : "Скачать"}
                               </Button>
                               <Button
                                 variant="danger"
