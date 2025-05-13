@@ -7,6 +7,7 @@ import Sidebar from "../../components/SideBar";
 import { Role } from "./types/roles.types";
 
 const ITEMS_PER_PAGE = 10;
+const MAX_DESCRIPTION_LENGTH = 50; // Максимальная длина для отображения описания
 
 const RoleList = () => {
   const [allRoles, setAllRoles] = useState<Role[]>([]);
@@ -26,6 +27,13 @@ const RoleList = () => {
   const isInitialMount = useRef(true);
 
   const API_BASE_URL = "/roles";
+
+  // Функция для сокращения длинного описания
+  const truncateDescription = (description: string) => {
+    if (!description) return "-";
+    if (description.length <= MAX_DESCRIPTION_LENGTH) return description;
+    return `${description.substring(0, MAX_DESCRIPTION_LENGTH)}...`;
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -131,8 +139,6 @@ const RoleList = () => {
     }
     navigate(`/roles/edit/${roleId}`, {
       state: { from: window.location.pathname },
-
-
     });
   };
 
@@ -369,8 +375,18 @@ const RoleList = () => {
                               <td style={{ padding: "16px", borderBottom: "1px solid #dee2e6" }}>
                                 {role.id}
                               </td>
-                              <td style={{ padding: "16px", borderBottom: "1px solid #dee2e6" }}>
-                                {role.description || "-"}
+                              <td 
+                                style={{ 
+                                  padding: "16px", 
+                                  borderBottom: "1px solid #dee2e6",
+                                  maxWidth: "250px", // Ограничиваем максимальную ширину ячейки
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  whiteSpace: "nowrap"
+                                }}
+                                title={role.description || ""} // Добавляем полное описание как подсказку
+                              >
+                                {truncateDescription(role.description || "")}
                               </td>
                             </>
                           )}
