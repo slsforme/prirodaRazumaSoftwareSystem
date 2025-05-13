@@ -243,9 +243,6 @@
             <mxPoint x="4323" y="848" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="oVDnJRbbuigx_oGyRrnd-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="VgJLLlDZcsgj7kXd5-qU-84" target="VgJLLlDZcsgj7kXd5-qU-32">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
         <mxCell id="VgJLLlDZcsgj7kXd5-qU-84" value="Проверка возможности прикрепления документа при помощи drag&#39;n&#39;drop" style="rounded=0;whiteSpace=wrap;html=1;fontFamily=Garamond;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=16;" parent="1" vertex="1">
           <mxGeometry x="3732" y="778" width="174" height="73" as="geometry" />
         </mxCell>
