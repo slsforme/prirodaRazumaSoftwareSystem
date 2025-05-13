@@ -28,6 +28,7 @@ router = create_base_router(
 PHOTO_STORAGE = Path("uploads/users/photos")
 ALLOWED_MIME_TYPES = ["image/jpeg", "image/png"]
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
+MAX_FILE_SIZE = 5 * 1024 * 1024  
 
 
 @router.post(
@@ -36,6 +37,7 @@ ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png"}
     responses={
         200: {"description": "Фото успешно обновлено"},
         404: {"description": "Пользователь не найден"},
+        413: {"description": "Размер файла превышает допустимый"},
         415: {"description": "Неподдерживаемый формат файла"},
         500: {"description": "Ошибка загрузки файла"},
     },
@@ -57,6 +59,15 @@ async def upload_user_photo(
             detail="Некорректное расширение файла",
         )
 
+    content = await photo.read()
+    await photo.seek(0)  
+    
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Размер файла превышает допустимый (максимум 5МБ)",
+        )
+    
     user = await service.get_object_by_id(user_id)
     if not user:
         raise HTTPException(
@@ -75,7 +86,7 @@ async def upload_user_photo(
         file_path = PHOTO_STORAGE / filename
 
         with file_path.open("wb") as buffer:
-            shutil.copyfileobj(photo.file, buffer)
+            buffer.write(content)  
 
         return await service.update_object(
             user_id, {"photo_url": str(file_path.relative_to("uploads"))}

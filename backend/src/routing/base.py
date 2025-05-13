@@ -18,6 +18,7 @@ from redis import asyncio as aioredis
 from urllib.parse import quote
 import json
 import traceback
+import re
 
 from typing import List, Dict, Any, TypeVar, Generic, Type, Optional
 from auth.auth import require_role
@@ -74,6 +75,16 @@ def create_base_router(
     forms = get_russian_forms(object_name, gender)
     router = APIRouter(prefix=prefix, tags=tags)
     cache_prefix = prefix.strip("/")
+    
+    # Добавляем проверку расширения файла
+    def validate_file_extension(filename: str):
+        allowed_extensions = re.compile(r'(\.pdf|\.docx|\.jpg|\.jpeg|\.png|\.mp4|\.mov|\.mkv)$', re.IGNORECASE)
+        if not allowed_extensions.search(filename):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Неподдерживаемый формат файла. Разрешены только файлы с расширениями: .pdf, .docx, .jpg, .jpeg, .png, .mp4, .mov, .mkv",
+            )
+        return True
 
     @router.get(
         "",
@@ -124,6 +135,10 @@ def create_base_router(
             file: UploadFile, data: str = Form(...), service=Depends(service_dependency)
         ) -> read_schema:
             try:
+                # Проверка расширения файла
+                if file and file.filename:
+                    validate_file_extension(file.filename)
+                    
                 data_dict = json.loads(data)
                 file_content = await file.read()
                 data_dict[file_field_name] = file_content
@@ -274,6 +289,11 @@ def create_base_router(
                         status_code=status.HTTP_404_NOT_FOUND,
                         detail=f"{forms['именительный'].capitalize()} не {forms['найден']}",
                     )
+                
+                # Проверка расширения файла
+                if file and file.filename:
+                    validate_file_extension(file.filename)
+                    
                 data_dict = {}
                 if data:
                     try:

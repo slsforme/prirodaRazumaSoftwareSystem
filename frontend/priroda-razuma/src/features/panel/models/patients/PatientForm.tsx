@@ -7,14 +7,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import cachedApi from "../../../services/api";
 import { Patient, PatientFormData } from "./types/patients.types";
 
-
 const formatBirthDate = (date: Date | null): string => {
-    if (!date) return "";
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
   const { id } = useParams();
@@ -28,6 +27,8 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
   const [errors, setErrors] = useState<Partial<Record<keyof PatientFormData, string>>>({});
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const cyrillicRegex = /^[а-яА-ЯёЁ\- ]+$/;
 
   const calculateAge = (birthDate: Date | null): number | string => {
     if (!birthDate) return "";
@@ -50,12 +51,12 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
       try {
         const response = await cachedApi.get<Patient>(`/patients/${id}`);
         const parts = response.data.fio.split(" ");
-        
+
         setFormData({
           lastName: parts[0] || "",
           firstName: parts[1] || "",
           patronymic: parts[2] || "",
-          birthDate: response.data.date_of_birth 
+          birthDate: response.data.date_of_birth
             ? new Date(response.data.date_of_birth)
             : null,
         });
@@ -70,13 +71,14 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
     name: keyof PatientFormData,
     value: string | Date | null
   ): string => {
-    const cyrillicRegex = /^[а-яА-ЯёЁ\- ]+$/;
     let error = "";
 
     switch (name) {
       case "lastName":
       case "firstName":
-        if (typeof value === "string") {
+        if (typeof value !== "string") {
+          error = "Поле должно быть строкой";
+        } else {
           if (value.length < 2) error = "Минимальная длина - 2 символа";
           else if (value.length > 100)
             error = "Максимальная длина - 100 символов";
@@ -86,8 +88,12 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
         break;
 
       case "patronymic":
-        if (typeof value === "string" && value) {
-          if (value.length > 100) error = "Максимальная длина - 100 символов";
+        if (typeof value !== "string") {
+          error = "Поле должно быть строкой";
+        } else if (value.length > 0) {
+          if (value.length < 2) error = "Минимальная длина - 2 символа";
+          else if (value.length > 100)
+            error = "Максимальная длина - 100 символов";
           else if (!cyrillicRegex.test(value))
             error = "Допустимы только кириллические символы";
         }
@@ -96,7 +102,7 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
       case "birthDate":
         if (!value) {
           error = "Дата рождения обязательна";
-        } else if (value > new Date()) {
+        } else if (value instanceof Date && value > new Date()) {
           error = "Дата рождения не может быть в будущем";
         }
         break;
@@ -107,13 +113,13 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
 
   const handleDateChange = (date: Date | null) => {
     const error = validateField("birthDate", date);
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
       birthDate: date,
     }));
-  
-    setErrors(prev => ({
+
+    setErrors((prev) => ({
       ...prev,
       birthDate: error,
     }));
@@ -122,26 +128,26 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     let processedValue = value;
-    
+
     if (["lastName", "firstName", "patronymic"].includes(name) && value.length > 0) {
       processedValue = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
     }
-    
+
     const error = validateField(name as keyof PatientFormData, processedValue);
-  
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
       [name]: processedValue,
     }));
-  
-    setErrors(prev => ({
+
+    setErrors((prev) => ({
       ...prev,
       [name]: error,
     }));
   };
-  
+
   const validateForm = () => {
-    const newErrors: Record<keyof PatientFormData, string> = {
+    const newErrors: Partial<Record<keyof PatientFormData, string>> = {
       lastName: validateField("lastName", formData.lastName),
       firstName: validateField("firstName", formData.firstName),
       patronymic: validateField("patronymic", formData.patronymic),
@@ -149,7 +155,7 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
     };
 
     setErrors(newErrors);
-    return !Object.values(newErrors).some(error => error !== "");
+    return !Object.values(newErrors).some((error) => error !== "");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -224,10 +230,7 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
 
         {error && <Alert variant="danger">{error}</Alert>}
 
-        <Form 
-        onSubmit={handleSubmit}
-        autoComplete="off"
-        >
+        <Form onSubmit={handleSubmit} autoComplete="off">
           <Form.Group className="mb-4">
             <Form.Label>Фамилия*</Form.Label>
             <Form.Control
@@ -236,7 +239,7 @@ const PatientForm = ({ isEdit = false }: { isEdit?: boolean }) => {
               onChange={handleInputChange}
               isInvalid={!!errors.lastName}
               style={{ borderRadius: "10px", padding: "12px" }}
-              autoComplete="off" 
+              autoComplete="off"
             />
             <Form.Control.Feedback type="invalid">
               {errors.lastName}
