@@ -172,6 +172,20 @@ const UserForm = ({ isEdit = false }: { isEdit?: boolean }) => {
           }
         }
         break;
+
+      case "patronymic":
+          if (typeof value === "string") {
+            if (value.length > 0) { 
+              if (value.length < 2) error = "Минимальная длина - 2 символа";
+              else if (value.length > 100)
+                error = "Максимальная длина - 100 символов";
+              else if (!cyrillicRegex.test(value))
+                error = "Допустимы только кириллические символы";
+            }
+          } else {
+            error = "Поле должно быть строкой";
+          }
+          break;
     }
 
     return error;
