@@ -253,7 +253,6 @@ class TestUser(HttpUser):
                     f"Получение по ID: {response.status_code} | {response.text}"
                 )
 
-    # TODO
     @task(4)
     def crud_documents(self):
         if not self.auth_token:

@@ -1,7 +1,35 @@
-from typing import Dict
+from typing import Dict, Optional
 
 
 def get_russian_forms(object_name: str, gender: str) -> Dict[str, str]:
+    special_cases = {
+        "пользователь": {
+            "именительный": "Пользователь",
+            "родительный": "Пользователя",
+            "винительный": "Пользователя",  
+            "творительный": "Пользователем",
+            "plural": "Пользователи",
+            "genitive_plural": "Пользователей",
+            "найден": "найден",
+            "удален": "удален",
+            "создан": "создан",
+        },
+        "роль": {
+            "именительный": "Роль",
+            "родительный": "Роли",
+            "винительный": "Роль",
+            "творительный": "Ролью",
+            "plural": "Роли",
+            "genitive_plural": "Ролей",
+            "найден": "найдена",
+            "удален": "удалена",
+            "создан": "создана",
+        }
+    }
+    
+    if object_name in special_cases:
+        return special_cases[object_name]
+    
     forms = {
         "m": {
             "именительный": object_name,
@@ -37,4 +65,11 @@ def get_russian_forms(object_name: str, gender: str) -> Dict[str, str]:
             "создан": "создано",
         },
     }
+    
+    if gender == "m" and object_name in ["Документ", "Пациент"]:
+        if object_name == "Пациент":  # одушевленное
+            forms["m"]["винительный"] = forms["m"]["родительный"]
+    
     return forms[gender]
+
+

@@ -126,7 +126,6 @@ const LoginForm: React.FC = () => {
         localStorage.removeItem("login");
   
         if (axios.isAxiosError(error)) {
-          // Обработка ответа от бэкенда
           if (error.response?.data.detail === "Пользователь неактивен или удалён из системы") {
             setError("Ваша учётная запись деактивирована");
           } else {

@@ -28,7 +28,6 @@ const RoleList = () => {
 
   const API_BASE_URL = "/roles";
 
-  // Функция для сокращения длинного описания
   const truncateDescription = (description: string) => {
     if (!description) return "-";
     if (description.length <= MAX_DESCRIPTION_LENGTH) return description;

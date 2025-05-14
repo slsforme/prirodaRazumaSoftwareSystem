@@ -76,7 +76,6 @@ def create_base_router(
     router = APIRouter(prefix=prefix, tags=tags)
     cache_prefix = prefix.strip("/")
     
-    # Добавляем проверку расширения файла
     def validate_file_extension(filename: str):
         allowed_extensions = re.compile(r'(\.pdf|\.docx|\.jpg|\.jpeg|\.png|\.mp4|\.mov|\.mkv)$', re.IGNORECASE)
         if not allowed_extensions.search(filename):
@@ -135,7 +134,6 @@ def create_base_router(
             file: UploadFile, data: str = Form(...), service=Depends(service_dependency)
         ) -> read_schema:
             try:
-                # Проверка расширения файла
                 if file and file.filename:
                     validate_file_extension(file.filename)
                     
@@ -290,7 +288,6 @@ def create_base_router(
                         detail=f"{forms['именительный'].capitalize()} не {forms['найден']}",
                     )
                 
-                # Проверка расширения файла
                 if file and file.filename:
                     validate_file_extension(file.filename)
                     
