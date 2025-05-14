@@ -414,7 +414,7 @@ const DocumentList = () => {
                   <thead>
                     <tr style={{ backgroundColor: "#f8f9fa" }}>
                       <th style={{ borderTopLeftRadius: "10px", padding: "16px" }}>
-                        ФИО
+                        ФИО Ребёнка
                       </th>
                       {!isMobile && (
                         <>
