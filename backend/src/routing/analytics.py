@@ -411,25 +411,15 @@ async def export_xlsx_report(
 
         df = pd.DataFrame()
         if report_type == "roles":
-            df = pd.DataFrame(data, columns=["роль", "количество"])
+            df = pd.DataFrame([{"Роль": item["role"], "Количество": item["count"]} for item in data])
         elif report_type == "documents":
-            df = pd.DataFrame(data, columns=["поддиректория", "количество"])
+            df = pd.DataFrame([{"Категория": item["subdirectory"], "Количество": item["count"]} for item in data])
         elif report_type == "patients":
-            df = pd.DataFrame(
-                [
-                    {"Дата": item["date"], "Количество": item["patient_count"]}
-                    for item in data
-                ]
-            )
+            df = pd.DataFrame([{"Дата": item["date"], "Количество пациентов": item["patient_count"]} for item in data])
         elif report_type == "users":
-            df = pd.DataFrame(
-                [
-                    {"Дата": item["date"], "Количество": item["users_count"]}
-                    for item in data
-                ]
-            )
+            df = pd.DataFrame([{"Дата": item["date"], "Количество пользователей": item["users_count"]} for item in data])
         elif report_type == "user-documents":
-            df = pd.DataFrame(data, columns=["дата", "количество"])
+            df = pd.DataFrame([{"Дата": item["date"], "Количество документов": item["count"]} for item in data])
 
         excel_buffer = io.BytesIO()
         with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:

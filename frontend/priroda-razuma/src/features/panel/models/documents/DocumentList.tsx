@@ -432,7 +432,7 @@ const DocumentList = () => {
                     {showNoResults ? (
                       <tr>
                         <td
-                          colSpan={isMobile ? 2 : 4}
+                          colSpan={isMobile ? 2 : 5}
                           className="text-center py-4 no-results-message"
                           style={{
                             backgroundColor: "#f8f9fa",
