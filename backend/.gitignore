@@ -29,11 +29,8 @@ migrations/
 *.log
 logs/
 
-certs/
-
 uploads/
 backups/
-alembic/
 
 TODO.md
 TOFIX.md
