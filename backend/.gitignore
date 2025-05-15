@@ -23,17 +23,11 @@ celerybeat.pid
 .*.sw?
 .cache
 
-migration/
-migrations/
-
 *.log
 logs/
 
-certs/
-
 uploads/
 backups/
-alembic/
 
 TODO.md
 TOFIX.md

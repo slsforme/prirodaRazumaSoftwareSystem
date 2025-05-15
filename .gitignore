@@ -1,7 +1,5 @@
-.env
 data/
 node_modules/
 *.bak
 alembic/
 .mypy_cache/
-certs/
