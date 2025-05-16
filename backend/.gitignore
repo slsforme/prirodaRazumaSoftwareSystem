@@ -8,9 +8,6 @@ venv.bak/
 __pycache__/
 *.py[cod]
 
-*.env
-*.env.*
-
 celerybeat-schedule
 celerybeat.pid
 
